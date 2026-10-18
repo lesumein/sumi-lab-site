@@ -1,0 +1,37 @@
+/* Sumi Lab: 앱과 같은 밤하늘 남색과 별빛 금색 */
+:root {
+  --bg: #EDEFF5; --surface: #FFFFFF; --line: #DDE1EB;
+  --ink: #1B2030; --muted: #5C6479; --accent: #8A6420;
+  --hero: #1F2742; --hero-ink: #F2EEE3; --gold: #E1BB66;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0F121A; --surface: #181C27; --line: #272D3D; --ink: #E6E8EF; --muted: #969DB1; --accent: #E1BB66; --hero: #1C2340; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.7 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  padding: 0 max(16px, env(safe-area-inset-left)) 48px max(16px, env(safe-area-inset-right));
+}
+main { max-width: 680px; margin: 0 auto; }
+header.hero {
+  background: var(--hero); color: var(--hero-ink); border-radius: 24px;
+  padding: 28px; margin: 24px 0 28px;
+}
+header.hero .eyebrow { color: var(--gold); font-size: 13px; letter-spacing: .06em; margin: 0 0 6px; }
+header.hero h1 { margin: 0; font-size: 28px; line-height: 1.3; text-wrap: balance; }
+header.hero p { margin: 10px 0 0; color: #A8AFC6; }
+h2 { font-size: 18px; margin: 32px 0 8px; }
+p, li { color: var(--ink); }
+.muted { color: var(--muted); font-size: 14px; }
+ul { padding-left: 1.2em; }
+code { background: var(--line); border-radius: 6px; padding: 1px 6px; font-size: 14px; }
+a { color: var(--accent); }
+.card {
+  display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+  padding: 18px 20px; text-decoration: none; color: var(--ink); margin-bottom: 12px;
+}
+.card strong { display: block; font-size: 17px; }
+.card span { color: var(--muted); font-size: 14px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
