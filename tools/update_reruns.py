@@ -167,12 +167,18 @@ def main():
     cache = json.loads(CHARS.read_text()) if CHARS.exists() else {}
     fill_info(stars, cache)
     last = {}  # 이름 -> (버전, 시작일, 같은 기원의 5성 수)
+    first = {}  # 이름 -> 처음 픽업된 버전
+    runs = {}  # 이름 -> 혼자 픽업된(집대성이 아닌) 기원의 시작일들
     for version, date, titles in rows:
         names = [t for t in dict.fromkeys(titles) if t in stars and t in cache]
         for n in names:
             prev = last.get(n)
             if prev is None or (version_key(version), date) >= (version_key(prev[0]), prev[1]):
                 last[n] = (version, date, len(names))
+            if n not in first or version_key(version) < version_key(first[n]):
+                first[n] = version
+            if len(names) == 1:
+                runs.setdefault(n, set()).add(date)
     CHARS.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
 
     data = {
@@ -189,6 +195,9 @@ def main():
                     # 한 기원에 5성이 여럿이면 집대성(지난 캐릭터 모음) 기원이다.
                     "chronicled": count > 1,
                     "standard": n in STANDARD,
+                    # 처음 나온 버전(지금 버전이면 '신규'), 단독 픽업 횟수(1이면 아직 복각 없음).
+                    "first": first[n],
+                    "runs": len(runs.get(n, ())),
                 }
                 for n, (v, d, count) in last.items()
             ),
