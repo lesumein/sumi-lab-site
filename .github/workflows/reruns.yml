@@ -1,0 +1,37 @@
+name: Update rerun data
+
+# 원신 출첵 앱의 '복각표' 데이터(checkin/data/reruns.json)를 하루 한 번 위키에서 다시 만든다.
+# 바뀐 게 있을 때만 커밋하고, GitHub Pages가 apps.sumi.kr/checkin/data/reruns.json으로 내보낸다.
+on:
+  schedule:
+    # 매일 한국 시간 오전 5시 17분(UTC 20:17). 정각을 피해 붐비는 시간을 비킨다.
+    - cron: "17 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build reruns.json
+        run: python3 tools/update_reruns.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- checkin/data; then
+            echo "변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add checkin/data
+          git commit -m "Update rerun data"
+          git push
