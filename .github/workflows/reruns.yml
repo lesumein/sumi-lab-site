@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -24,9 +25,18 @@ jobs:
       - name: Build reruns.json
         run: python3 tools/update_reruns.py
 
+      # GitHub은 공개 저장소에 60일 동안 활동이 없으면 예약 작업을 멈춘다. 자료가 오래 안 바뀌어도 멈추지 않게,
+      # 마지막 커밋이 30일보다 오래됐으면 확인 날짜만 적은 작은 파일을 고쳐 커밋한다(평소엔 커밋하지 않는다).
+      - name: Keep alive
+        run: |
+          last=$(git log -1 --format=%ct)
+          if [ $(( $(date +%s) - last )) -gt $(( 30 * 86400 )) ]; then
+            date -u +%F > checkin/data/last-check.txt
+          fi
+
       - name: Commit if changed
         run: |
-          if git diff --quiet -- checkin/data; then
+          if git diff --quiet -- checkin/data && [ -z "$(git status --porcelain -- checkin/data)" ]; then
             echo "변경 없음"
             exit 0
           fi
@@ -35,3 +45,9 @@ jobs:
           git add checkin/data
           git commit -m "Update rerun data"
           git push
+
+      # 혹시 멈췄다가 사람이 다시 켠 경우를 대비해, 돌 때마다 이 작업을 '켜짐'으로 확인해 둔다.
+      - name: Make sure the schedule stays enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/reruns.yml/enable" || true
