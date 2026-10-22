@@ -168,7 +168,7 @@ def main():
     fill_info(stars, cache)
     last = {}  # 이름 -> (버전, 시작일, 같은 기원의 5성 수)
     first = {}  # 이름 -> 처음 픽업된 버전
-    runs = {}  # 이름 -> 혼자 픽업된(집대성이 아닌) 기원의 시작일들
+    runs = {}  # 이름 -> 혼자 픽업된(집록이 아닌) 기원의 시작일들
     for version, date, titles in rows:
         names = [t for t in dict.fromkeys(titles) if t in stars and t in cache]
         for n in names:
@@ -192,7 +192,7 @@ def main():
                     "element": cache[n]["element"],
                     "last": v,
                     "lastStart": d,
-                    # 한 기원에 5성이 여럿이면 집대성(지난 캐릭터 모음) 기원이다.
+                    # 한 기원에 5성이 여럿이면 집록(지난 캐릭터 모음) 기원이다.
                     "chronicled": count > 1,
                     "standard": n in STANDARD,
                     # 처음 나온 버전(지금 버전이면 '신규'), 단독 픽업 횟수(1이면 아직 복각 없음).
