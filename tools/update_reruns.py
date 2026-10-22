@@ -103,12 +103,25 @@ def version_key(v):
     return int(major), int(minor)
 
 
+MONTHS = {m: i for i, m in enumerate(
+    ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], 1)}
+
+
+def end_date(text):
+    """'September 23, 2026 — October 13, 2026'에서 종료일(2026-10-13). 없거나 '진행 중'이면 None."""
+    found = re.findall(r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d{1,2}), (\d{4})", text)
+    if len(found) < 2:
+        return None
+    month, day, year = found[-1]
+    return f"{year}-{MONTHS[month]:02d}-{int(day):02d}"
+
+
 def load_history():
     text = api({"action": "parse", "page": "Wish/History", "prop": "text"})["parse"]["text"]
     parser = Tables()
     parser.feed(text)
     versions = {}  # 버전 -> 가장 이른 기원 시작일
-    rows = []  # (버전, 시작일, 링크 제목들)
+    rows = []  # (버전, 시작일, 링크 제목들, 종료일 또는 None)
     current = None
     for kind, value in parser.items:
         if kind == "version":
@@ -121,7 +134,7 @@ def load_history():
         if not date:
             continue
         titles = [t for c in cells for t in c["titles"]]
-        rows.append((current, date, titles))
+        rows.append((current, date, titles, end_date(" ".join(c["text"] for c in cells))))
         versions[current] = min(versions.get(current, date), date)
     return versions, rows
 
@@ -169,8 +182,12 @@ def main():
     last = {}  # 이름 -> (버전, 시작일, 같은 기원의 5성 수)
     first = {}  # 이름 -> 처음 픽업된 버전
     runs = {}  # 이름 -> 혼자 픽업된(집록이 아닌) 기원의 시작일들
-    for version, date, titles in rows:
+    banners = {}  # (시작일, 5성들) -> 픽업 정보. 같은 날 같은 캐릭터 기원(집록 등)이 여러 줄이면 하나로.
+    for version, date, titles, end in rows:
         names = [t for t in dict.fromkeys(titles) if t in stars and t in cache]
+        if names and end:
+            key = (date, tuple(sorted(names)))
+            banners[key] = {"version": version, "start": date, "end": end, "chars": sorted(names), "chronicled": len(names) > 1}
         for n in names:
             prev = last.get(n)
             if prev is None or (version_key(version), date) >= (version_key(prev[0]), prev[1]):
@@ -184,6 +201,8 @@ def main():
     data = {
         "source": "Genshin Impact Wiki (genshin-impact.fandom.com), CC BY-SA",
         "versions": [{"v": v, "label": version_label(v), "start": versions[v]} for v in sorted(versions, key=version_key)],
+        # 최근 픽업과 앞으로의 픽업(시작·종료일). 앱이 '지금 픽업 중'과 '기다리는 캐릭터 알림'에 쓴다. 작게 유지하려고 최근 것만.
+        "banners": sorted(banners.values(), key=lambda b: (b["start"], b["chars"]))[-16:],
         "characters": sorted(
             (
                 {
