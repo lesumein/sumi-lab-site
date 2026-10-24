@@ -48,6 +48,9 @@
         font-size: 14px; text-decoration: none; border: 1px solid var(--line); color: var(--accent); white-space: nowrap; }
   .go.primary { background: var(--hero); border-color: var(--hero); color: var(--gold); }
   @media (prefers-color-scheme: dark) { .go.primary { background: var(--gold); border-color: var(--gold); color: #2A1F08; } }
+  .warn-tip { margin: 8px 2px 0; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, var(--gold) 16%, var(--surface));
+              font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .warn-tip b { display: block; color: var(--accent); }
   .panel .fine { margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
   .web-go { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); background: var(--hero); color: var(--hero-ink);
             border-radius: 18px; padding: 14px 16px; }
@@ -97,6 +100,7 @@
     <div class="step"><span class="n">2</span><div>플레이스토어에서 설치<small>'테스터 되기'가 보이면 먼저 눌러요</small></div>
       <a class="go primary" href="https://play.google.com/store/apps/details?id=kr.sumi.checkin" target="_blank" rel="noopener">설치</a></div>
     <div class="step"><span class="n">3</span><div>앱에서 호요랩 로그인<small>한 번이면 매일 알아서 돌아가요</small></div></div>
+    <div class="warn-tip"><b>'항목을 찾을 수 없음'이 뜨면</b>그룹에 가입한 계정과 플레이스토어 계정이 달라서 그래요. 플레이스토어 앱 오른쪽 위 프로필을 눌러 <strong>가입한 계정으로 바꾼 뒤</strong> 다시 '설치'를 눌러 주세요.</div>
     <p class="fine">안드로이드 8.0 이상 · 무료 · 광고 없음 · 테스트 기간(2주) 동안 지우지 말아 주세요</p>
   </section>
 
@@ -162,7 +166,7 @@
   </details>
   <details>
     <summary>'항목을 찾을 수 없음'이 떠요</summary>
-    <p>그룹에 가입한 구글 계정과 플레이스토어 계정이 같은지 확인해 주세요. 가입 직후에는 몇 분 걸릴 수 있어요. 브라우저에 구글 계정이 여러 개 로그인돼 있으면 시크릿 창에서 그 계정 하나로만 열어 보세요.</p>
+    <p>대부분 그룹에 가입한 구글 계정과 플레이스토어 계정이 달라서 그래요. 플레이스토어 앱을 열고 오른쪽 위 프로필을 눌러 그룹에 가입한 계정으로 바꾼 뒤, 이 페이지에서 '설치'를 다시 눌러 주세요. 가입 직후에는 몇 분 걸릴 수 있어요.</p>
   </details>
   <details>
     <summary>더 자세히(하는 일, 개인정보)</summary>
