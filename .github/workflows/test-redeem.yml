@@ -1,0 +1,28 @@
+name: Test redeem with the test account
+
+# 수동 실행 전용: 확인용 계정으로 코드 몇 개를 넣어 보고 응답 코드와 문구만 출력한다(쿠키·UID는 출력하지 않는다).
+on:
+  workflow_dispatch:
+    inputs:
+      codes:
+        description: "넣어 볼 코드(공백으로 구분)"
+        required: false
+        default: "SUMILABNOTREAL1 BALLETCOLLAB PJ2KEBRAYSRM"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Try codes
+        env:
+          HOYO_TEST_COOKIE_TOKEN: ${{ secrets.HOYO_TEST_COOKIE_TOKEN }}
+          HOYO_TEST_ACCOUNT_MID: ${{ secrets.HOYO_TEST_ACCOUNT_MID }}
+          CODES: ${{ inputs.codes }}
+        run: python3 tools/test_redeem.py $CODES
