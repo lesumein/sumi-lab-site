@@ -33,6 +33,10 @@
                 padding: 10px 0; border-radius: 12px; cursor: pointer; }
   .seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
   .seg button small { font-weight: 400; font-size: 12px; margin-left: 4px; }
+  .seg button { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .seg svg.os { width: 20px; height: 20px; flex: none; }
+  .play { flex: none; display: block; margin: -6px -6px -6px 0; }
+  .play img { display: block; width: 129px; height: auto; }
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px; margin-top: 10px; }
   .panel .lead { margin: 0 2px 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
   .panel .lead strong { color: var(--ink); }
@@ -84,16 +88,16 @@
   </section>
 
   <div class="seg" role="tablist">
-    <button role="tab" aria-selected="true" data-device="android">안드로이드<small>앱</small></button>
-    <button role="tab" aria-selected="false" data-device="ios">아이폰·PC<small>웹</small></button>
+    <button role="tab" aria-selected="true" data-device="android"><svg class="os" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3DDC84" d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52ZM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"/></svg>안드로이드<small>앱</small></button>
+    <button role="tab" aria-selected="false" data-device="ios"><svg class="os" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.8 5.8 3.8 9s-1.2 6.2-3.8 9c-2.6-2.8-3.8-5.8-3.8-9S9.4 5.8 12 3Z"/></svg>아이폰·PC<small>웹</small></button>
   </div>
 
   <section class="panel" data-for="android">
     <p class="lead"><strong>지금은 플레이스토어 비공개 테스트 중이에요.</strong> 순서대로 눌러 주세요. 1번을 건너뛰면 2번이 열리지 않아요.</p>
     <div class="step"><span class="n">1</span><div>테스터 그룹 가입<small>구글 계정으로 '그룹 가입'</small></div>
       <a class="go" href="https://groups.google.com/g/sumi-checkin-testers" target="_blank" rel="noopener">가입</a></div>
-    <div class="step"><span class="n">2</span><div>플레이스토어에서 설치<small>'테스터 되기'가 보이면 먼저 눌러요</small></div>
-      <a class="go primary" href="https://play.google.com/store/apps/details?id=kr.sumi.checkin" target="_blank" rel="noopener">설치</a></div>
+    <div class="step"><span class="n">2</span><div>설치하기<small>'테스터 되기'가 보이면 먼저</small></div>
+      <a class="play" href="https://play.google.com/store/apps/details?id=kr.sumi.checkin" target="_blank" rel="noopener"><img src="/checkin/img/google-play-badge-ko.png" alt="Google Play에서 다운로드" width="129" height="50"></a></div>
     <div class="step"><span class="n">3</span><div>앱에서 호요랩 로그인<small>한 번이면 매일 알아서 돌아가요</small></div></div>
     <p class="fine">안드로이드 8.0 이상 · 무료 · 광고 없음 · 테스트 기간(2주) 동안 지우지 말아 주세요</p>
   </section>
@@ -154,7 +158,8 @@
 
   <footer class="muted">
     불편한 점은 <a href="mailto:apps@sumi.kr">apps@sumi.kr</a> · <a href="/checkin/privacy/">개인정보처리방침</a><br>
-    HoYoverse와 관계없는 비공식 앱이에요. 원신과 HoYoLAB은 HoYoverse의 상표예요. © 2026 Sumi Lab
+    HoYoverse와 관계없는 비공식 앱이에요. 원신과 HoYoLAB은 HoYoverse의 상표예요.<br>
+    Google Play 및 Google Play 로고는 Google LLC의 상표예요. Android 로봇은 Google이 만들어 공유한 저작물을 쓴 거예요(CC BY 3.0). © 2026 Sumi Lab
   </footer>
 </main>
 <script>
