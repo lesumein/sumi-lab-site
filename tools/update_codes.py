@@ -31,6 +31,8 @@ EVENTS = ROOT / "checkin/data/events.json"
 NAMES = ROOT / "checkin/data/item_names.json"
 # 위키에는 아직 유효로 남아 있지만 써 보니 만료된 코드(제보로 하나씩 더한다). 한 줄에 하나, '#' 뒤는 메모.
 EXPIRED = ROOT / "checkin/data/expired-codes.txt"
+# 위키에는 없지만 직접 넣어 보고 확인한 코드. 한 줄에 '코드 | 보상 요약 | 서버(생략하면 전 서버) | 확인한 날'.
+EXTRA = ROOT / "checkin/data/extra-codes.txt"
 # 만료일을 모르는 코드가 이만큼(일) 지나면 '오래된 코드'로 따로 보여 준다.
 OLD_DAYS = 45
 WEB = "https://apps.sumi.kr/genshin-codes/"
@@ -245,6 +247,26 @@ def notify(new):
         print("알림 실패:", e, file=sys.stderr)
 
 
+def extra_codes():
+    """extra-codes.txt의 코드들. 확인한 날을 올라온 날로 쓴다(NEW 표시와 오래된 코드 판정에 쓰인다)."""
+    if not EXTRA.exists():
+        return []
+    out = []
+    for line in EXTRA.read_text().splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        code = parts[0].upper()
+        if not re.fullmatch(r"[A-Z0-9]{6,20}", code):
+            continue
+        out.append({"code": code, "server": (parts[2] if len(parts) > 2 and parts[2] else "전 서버"),
+                    "reward": parts[1] if len(parts) > 1 and parts[1] else None,
+                    "discovered": parts[3] if len(parts) > 3 and re.fullmatch(r"\d{4}-\d{2}-\d{2}", parts[3]) else None,
+                    "expiry": None, "live": False})
+    return out
+
+
 def expired_reported():
     """써 보니 만료된 코드(대문자). 파일이 없으면 빈 집합."""
     if not EXPIRED.exists():
@@ -289,6 +311,11 @@ def main():
                           "discovered": r["discovered"], "expiry": r["expiry"], "live": any(c in live for c in r["codes"])})
         seen = set()
         codes = [c for c in codes if not (c["code"] in seen or seen.add(c["code"]))]
+        # 직접 확인한 코드(위키에 없는 것)를 보탠다.
+        for e in extra_codes():
+            if e["code"] not in seen:
+                seen.add(e["code"])
+                codes.append(e)
         reported = expired_reported()
         codes = [c for c in codes if c["code"] not in reported]
         for c in codes:
