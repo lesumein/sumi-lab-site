@@ -29,6 +29,10 @@ ROOT = Path(__file__).resolve().parent.parent
 CODES = ROOT / "checkin/data/codes.json"
 EVENTS = ROOT / "checkin/data/events.json"
 NAMES = ROOT / "checkin/data/item_names.json"
+# 위키에는 아직 유효로 남아 있지만 써 보니 만료된 코드(제보로 하나씩 더한다). 한 줄에 하나, '#' 뒤는 메모.
+EXPIRED = ROOT / "checkin/data/expired-codes.txt"
+# 만료일을 모르는 코드가 이만큼(일) 지나면 '오래된 코드'로 따로 보여 준다.
+OLD_DAYS = 45
 WEB = "https://apps.sumi.kr/genshin-codes/"
 ONESIGNAL_APP_ID = "b45e38a4-bb0d-44c2-8d58-33869fde35c8"
 SERVER_NAMES = {"SEA": "아시아", "NA": "미국", "EU": "유럽", "SAR": "TW·HK·MO"}
@@ -241,6 +245,13 @@ def notify(new):
         print("알림 실패:", e, file=sys.stderr)
 
 
+def expired_reported():
+    """써 보니 만료된 코드(대문자). 파일이 없으면 빈 집합."""
+    if not EXPIRED.exists():
+        return set()
+    return {line.split("#", 1)[0].strip().upper() for line in EXPIRED.read_text().splitlines() if line.split("#", 1)[0].strip()}
+
+
 def main():
     today = datetime.now(UTC8).date()
     names = json.loads(NAMES.read_text()) if NAMES.exists() else {}
@@ -278,6 +289,11 @@ def main():
                           "discovered": r["discovered"], "expiry": r["expiry"], "live": any(c in live for c in r["codes"])})
         seen = set()
         codes = [c for c in codes if not (c["code"] in seen or seen.add(c["code"]))]
+        reported = expired_reported()
+        codes = [c for c in codes if c["code"] not in reported]
+        for c in codes:
+            c["old"] = (not c["expiry"] and not c["live"] and c["discovered"] is not None
+                        and (today - date.fromisoformat(c["discovered"])).days > OLD_DAYS)
 
     try:
         event_list = events()

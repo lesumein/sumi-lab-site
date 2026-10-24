@@ -67,6 +67,9 @@
   .label { margin: 16px 6px 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
   .group.live { border-color: color-mix(in srgb, var(--live) 45%, var(--line)); }
   .code-row.copied .code { color: var(--live); }
+  .aged { margin-top: 12px; }
+  .aged summary { cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 700; padding: 6px; }
+  .aged .group { opacity: .75; margin-top: 6px; }
 
   /* 리딤 코드 */
   .group { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
@@ -176,6 +179,7 @@
     <div id="liveBox" hidden><div class="label">방송 코드 · 금방 끝나서 먼저 입력하세요</div><div class="group live" id="liveCodes"></div></div>
     <div class="label" id="restLabel" hidden>그 밖의 코드</div>
     <div class="group" id="codes"><div class="empty">불러오는 중...</div></div>
+    <details class="aged" id="agedBox" hidden><summary id="agedSum"></summary><div class="group" id="agedCodes"></div></details>
     <p class="tip">코드를 누르면 복사 · '입력'은 공식 입력 페이지</p>
     <a class="app-link" href="/checkin/">
       <img src="/checkin/img/icon.png" alt="">
@@ -291,7 +295,8 @@
   }
   function renderCodes() {
     const opened = new Set(store.get("opened", []));
-    const live = codes.filter(c => c.live), rest = codes.filter(c => !c.live);
+    // 만료일을 모르는 채 오래된 코드는 맨 아래 접힌 묶음으로(만료됐을 수 있어요).
+    const live = codes.filter(c => c.live), rest = codes.filter(c => !c.live && !c.old), aged = codes.filter(c => !c.live && c.old);
     // 위 요약: 큰 숫자 + 방송·새 코드·곧 끝나는 코드
     const fresh = codes.filter(c => c.discovered && dayDiff(today, c.discovered) <= 3).length;
     const ending = codes.filter(c => c.expiry && dayDiff(c.expiry, today) <= 2).length;
@@ -308,6 +313,9 @@
     const shown = expanded ? rest : rest.slice(0, FOLDED);
     box.innerHTML = shown.map(c => row(c, opened)).join("")
       + (rest.length > shown.length ? `<button class="more" id="more">코드 ${rest.length - shown.length}개 더 보기</button>` : "");
+    $("agedBox").hidden = !aged.length;
+    $("agedSum").textContent = `오래된 코드 ${aged.length}개 · 만료됐을 수 있어요`;
+    $("agedCodes").innerHTML = aged.map(c => row(c, opened)).join("");
     const more = $("more");
     if (more) more.onclick = () => { expanded = true; renderCodes(); };
   }
