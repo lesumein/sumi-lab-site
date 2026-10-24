@@ -8,7 +8,7 @@
 - HoYoLAB 공식 코드 목록(공개): 특별 방송 코드. 위키보다 먼저 올라온다.
 - HoYoLAB 원신 이벤트 목록(공개)
 
-새 코드가 생기면 ntfy 주제(NTFY_TOPIC)에 알림을 한 번 올린다. 구독자는 ntfy 앱으로 받는다.
+새 코드가 생기면 웹앱에서 알림을 켠 기기에 웹 푸시를 한 번 보낸다(OneSignal, 키는 ONESIGNAL_API_KEY).
 로그인 정보는 어디에도 쓰지 않는다.
 """
 import json
@@ -30,6 +30,7 @@ CODES = ROOT / "checkin/data/codes.json"
 EVENTS = ROOT / "checkin/data/events.json"
 NAMES = ROOT / "checkin/data/item_names.json"
 WEB = "https://apps.sumi.kr/genshin-codes/"
+ONESIGNAL_APP_ID = "b45e38a4-bb0d-44c2-8d58-33869fde35c8"
 SERVER_NAMES = {"SEA": "아시아", "NA": "미국", "EU": "유럽", "SAR": "TW·HK·MO"}
 # 앱(Redeem.kt)과 같은 기본 이름. 나머지는 위키 아이템 문서의 한국어 표기를 배워 item_names.json에 둔다.
 BASE_NAMES = {
@@ -211,24 +212,31 @@ def events():
 # ---------- 알림 ----------
 
 def notify(new):
-    """ntfy JSON 발행. 알림을 누르면 웹앱, 코드마다 '입력' 버튼(최대 3개)은 공식 입력 페이지를 연다."""
-    topic = os.environ.get("NTFY_TOPIC")
-    if not topic or not new:
+    """새 코드를 웹 푸시로 한 번 알린다(OneSignal). 누르면 웹앱이 열린다. 키는 저장소 Secret(ONESIGNAL_API_KEY)에만 있다."""
+    key = os.environ.get("ONESIGNAL_API_KEY")
+    if not key or not new:
         return
     lines = [f"{c['code']} · {c['server']}" + (f" · {c['reward']}" if c.get("reward") else "") for c in new]
     title = f"새 리딤 코드 {len(new)}개" + (" (방송)" if any(c.get("live") for c in new) else "")
+    message = "\n".join(lines)
     body = {
-        "topic": topic, "title": title, "message": "\n".join(lines), "tags": ["gift"], "click": WEB,
-        "actions": [{"action": "view", "label": f"{c['code']} 입력", "url": f"https://genshin.hoyoverse.com/m/ko/gift?code={c['code']}"}
-                    for c in new[:3]],
+        "app_id": ONESIGNAL_APP_ID,
+        "target_channel": "push",
+        "included_segments": ["Total Subscriptions"],
+        # 영어(en) 내용은 필수라 같은 한국어 문장을 넣는다.
+        "headings": {"en": title, "ko": title},
+        "contents": {"en": message, "ko": message},
+        "url": WEB,
+        "chrome_web_icon": WEB + "icon-192.png",
     }
     req = urllib.request.Request(
-        "https://ntfy.sh/", data=json.dumps(body, ensure_ascii=False).encode(), method="POST",
-        headers={"Content-Type": "application/json", "User-Agent": UA},
+        "https://api.onesignal.com/notifications?c=push", data=json.dumps(body, ensure_ascii=False).encode(), method="POST",
+        headers={"Content-Type": "application/json", "Authorization": f"Key {key}", "User-Agent": UA},
     )
     try:
-        urllib.request.urlopen(req, timeout=30).read()
-        print("알림 보냄:", title)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            result = json.load(r)
+        print("알림 보냄:", title, "· 받는 기기 수 확인은 OneSignal 대시보드에서", "· 오류" if result.get("errors") else "")
     except Exception as e:
         print("알림 실패:", e, file=sys.stderr)
 

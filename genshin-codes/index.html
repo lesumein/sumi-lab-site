@@ -17,6 +17,7 @@
 <link rel="apple-touch-icon" href="/genshin-codes/apple-touch-icon.png">
 <link rel="stylesheet" href="/style.css">
 <style>
+  [hidden] { display: none !important; }
   /* 앱과 같은 색: 원소, 표시 */
   :root { --pyro:#D9573A; --hydro:#3A86D6; --electro:#9A63CF; --cryo:#5DB7D3; --anemo:#3BA88F; --geo:#C99A2E; --dendro:#6FA83A;
           --live:#4E8A55; --warn:#B04A2A; --chip:#E9ECF3; --hero-muted:#A8AFC6; }
@@ -97,11 +98,10 @@
 
   <section class="alert-card" id="alerts" style="margin-top:16px">
     <strong>새 코드가 나오면 알림 받기</strong>
-    <p>무료 알림 앱 ntfy에서 <code>sumi-genshin-codes</code>를 구독하면 새 코드가 올라올 때 알려 줘요. 가입은 필요 없어요. 알림의 '입력' 버튼을 누르면 바로 입력 페이지가 열려요.</p>
+    <p id="pushText">새 리딤 코드가 올라오면 이 기기로 알려 줘요. 앱 설치나 가입은 필요 없어요.</p>
     <div class="buttons">
-      <a class="btn" id="ntfyStore" href="https://ntfy.sh/" target="_blank" rel="noopener">ntfy 앱 받기</a>
-      <a class="btn primary" href="ntfy://ntfy.sh/sumi-genshin-codes">ntfy에서 구독</a>
-      <button class="btn" type="button" data-copy="sumi-genshin-codes">주제 이름 복사</button>
+      <button class="btn primary" type="button" id="pushOn">알림 받기</button>
+      <button class="btn" type="button" id="pushOff" hidden>알림 끄기</button>
     </div>
   </section>
 
@@ -118,7 +118,7 @@
 
   <footer>
     자료: 원신 위키(genshin-impact.fandom.com, CC BY-SA), HoYoLAB 공개 목록. 1시간마다(금요일 밤에는 15분마다) 새로 만들어요.<br>
-    이 페이지는 로그인하지 않고, 아무 정보도 보내지 않아요. '입력' 버튼으로 열어 본 코드 표시만 이 기기 브라우저에 저장해요.<br>
+    이 페이지는 로그인하지 않아요. 알림을 켠 경우에만 알림 서비스(OneSignal)에 알림 받을 정보가 저장돼요. <a href="/genshin-codes/privacy/">개인정보처리방침</a><br>
     <a href="/">Sumi Lab</a> · 원신은 HoYoverse의 상표이며 이 페이지는 HoYoverse와 관련이 없어요.
   </footer>
 </main>
@@ -154,10 +154,74 @@
     if (b) copy(b.dataset.copy);
   });
 
-  // ntfy 앱 받기: 기기에 맞는 스토어로
-  const ua = navigator.userAgent;
-  if (/iPhone|iPad|iPod/.test(ua)) $("ntfyStore").href = "https://apps.apple.com/app/ntfy/id1625396347";
-  else if (/Android/.test(ua)) $("ntfyStore").href = "https://play.google.com/store/apps/details?id=io.heckel.ntfy";
+  // ---------- 새 코드 알림(웹 푸시, OneSignal) ----------
+  // 알림을 켜기 전에는 OneSignal을 불러오지 않는다(아무 정보도 보내지 않게). 한 번 켰으면 다음부터 상태를 보려고 불러온다.
+  const ONESIGNAL_APP_ID = "b45e38a4-bb0d-44c2-8d58-33869fde35c8";
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const pushText = $("pushText"), pushOn = $("pushOn"), pushOff = $("pushOff");
+  let sdk;
+  function loadSdk() {
+    if (sdk) return sdk;
+    sdk = new Promise((resolve, reject) => {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async OneSignal => {
+        try {
+          await OneSignal.init({
+            appId: ONESIGNAL_APP_ID,
+            serviceWorkerPath: "/genshin-codes/OneSignalSDKWorker.js",
+            serviceWorkerParam: { scope: "/genshin-codes/" },
+            notifyButton: { enable: false },
+            autoResubscribe: true,
+          });
+          OneSignal.User.PushSubscription.addEventListener("change", showPush);
+          resolve(OneSignal);
+        } catch (e) { reject(e); }
+      });
+      const s = document.createElement("script");
+      s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+      s.defer = true;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return sdk;
+  }
+  function setPush(text, on, off) {
+    pushText.textContent = text;
+    pushOn.hidden = !on; pushOff.hidden = !off;
+  }
+  async function showPush() {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      if (ios && !standalone) return setPush("아이폰은 사파리 공유 버튼 → '홈 화면에 추가'로 이 페이지를 추가한 뒤, 거기서 열어 '알림 받기'를 눌러 주세요(iOS 16.4 이상).", false, false);
+      return setPush("이 브라우저는 알림을 지원하지 않아요. 크롬이나 사파리(홈 화면에 추가)에서 열어 주세요.", false, false);
+    }
+    if (Notification.permission === "denied") return setPush("알림이 차단돼 있어요. 브라우저 사이트 설정에서 알림을 허용해 주세요.", false, false);
+    if (!store.get("push", false)) return setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요. 앱 설치나 가입은 필요 없어요.", true, false);
+    try {
+      const OneSignal = await loadSdk();
+      if (OneSignal.User.PushSubscription.optedIn) setPush("알림 받는 중이에요. 새 코드가 올라오면 알려 줄게요.", false, true);
+      else setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요.", true, false);
+    } catch { setPush("알림 기능을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.", true, false); }
+  }
+  pushOn.onclick = async () => {
+    pushOn.disabled = true;
+    try {
+      const OneSignal = await loadSdk();
+      await OneSignal.Notifications.requestPermission();
+      await OneSignal.User.PushSubscription.optIn();
+      store.set("push", OneSignal.User.PushSubscription.optedIn);
+      toast(OneSignal.User.PushSubscription.optedIn ? "알림을 켰어요" : "알림을 허용하지 않았어요");
+    } catch { toast("알림을 켜지 못했어요"); }
+    pushOn.disabled = false;
+    showPush();
+  };
+  pushOff.onclick = async () => {
+    try { (await loadSdk()).User.PushSubscription.optOut(); } catch {}
+    store.set("push", false);
+    toast("알림을 껐어요");
+    showPush();
+  };
+  showPush();
 
   async function load(name) {
     const r = await fetch(DATA + name, { cache: "no-cache" });
