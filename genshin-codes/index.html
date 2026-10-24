@@ -184,7 +184,8 @@
       const s = document.createElement("script");
       s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
       s.defer = true;
-      s.onerror = reject;
+      // 광고·추적 차단(브레이브 쉴드, 차단 앱 등)이 알림 스크립트를 막으면 여기로 온다.
+      s.onerror = () => { sdk = null; reject(new Error("blocked")); };
       document.head.appendChild(s);
     });
     return sdk;
@@ -220,7 +221,12 @@
       }
     } catch (e) {
       toast("알림을 켜지 못했어요");
-      pushText.textContent = "알림을 켜지 못했어요: " + (e && (e.message || e.name) || e) + " · 이 화면을 캡처해 보내 주세요.";
+      const brave = !!navigator.brave;
+      pushText.textContent = e && e.message === "blocked"
+        ? (brave
+          ? "브레이브의 쉴드가 알림 서비스(OneSignal)를 막고 있어요. 주소창의 사자 아이콘에서 이 사이트의 쉴드를 끄고, 설정 → 개인정보 보호 → '푸시 메시지에 Google 서비스 사용'을 켠 뒤 다시 눌러 주세요. 크롬이나 삼성 인터넷에서 열면 바로 돼요."
+          : "광고·추적 차단 기능이 알림 서비스(OneSignal)를 막고 있어요. 이 사이트의 차단을 끄거나 크롬·삼성 인터넷에서 열어 다시 눌러 주세요.")
+        : "알림을 켜지 못했어요: " + (e && (e.message || e.name) || e) + " · 이 화면을 캡처해 보내 주세요.";
       pushOn.disabled = false;
       return;
     }
