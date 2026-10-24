@@ -19,6 +19,7 @@
   .stage::before { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%;
                    border: 1px solid rgba(255,255,255,.12); }
   .stage svg.star { position: absolute; right: 18px; top: 22px; width: 92px; height: 92px; opacity: .16; }
+  a.who { text-decoration: none; position: relative; z-index: 1; }
   .stage .who { display: flex; align-items: center; gap: 10px; color: #A8AFC6; font-size: 13px; }
   .stage .who img { width: 40px; height: 40px; border-radius: 12px; }
   .stage h1 { margin: 18px 0 6px; font-size: 30px; line-height: 1.25; letter-spacing: -.01em; text-wrap: balance; }
@@ -90,7 +91,7 @@
 <main>
   <section class="stage">
     <svg class="star" viewBox="0 0 24 24" fill="#F2EEE3" aria-hidden="true"><path d="M12 0c.8 6.4 5.6 11.2 12 12-6.4.8-11.2 5.6-12 12-.8-6.4-5.6-11.2-12-12C6.4 11.2 11.2 6.4 12 0Z"/></svg>
-    <div class="who"><img src="/checkin/img/icon.png" alt="">원신 리딤 자동출첵 · Sumi Lab · 비공식 앱</div>
+    <a class="who" href="/checkin/" id="home" aria-label="처음으로"><img src="/checkin/img/icon.png" alt="">원신 리딤 자동출첵 · Sumi Lab · 비공식 앱</a>
     <h1 data-for="android">링크 안 눌러도,<br><em>원석은 우편함에.</em></h1>
     <p data-for="android">새 리딤 코드가 나오면 앱이 알아서 입력해요. 출석도 매일 새벽에.</p>
     <h1 data-for="ios" hidden>새 리딤 코드,<br><em>놓치지 않게.</em></h1>
@@ -207,6 +208,8 @@
       try { localStorage.setItem("device", b.dataset.device); } catch {}
     });
     show(saved || (ios ? "ios" : "android"));
+    // 왼쪽 위 로고: 페이지 맨 위로.
+    document.getElementById("home").onclick = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); };
   })();
 </script>
 </body>
