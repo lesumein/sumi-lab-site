@@ -114,7 +114,7 @@
     <p class="fine">아이폰 알림: 사파리 공유 → '홈 화면에 추가' 후 거기서 🔔을 눌러요(iOS 16.4 이상).</p>
   </section>
 
-  <div class="shots" aria-label="앱 화면">
+  <div class="shots" aria-label="앱 화면" data-for="android">
     <img src="/checkin/img/screenshot1Redeem.webp" alt="받은 리딤 코드와 보상 합계 화면" width="540" height="960" loading="lazy">
     <img src="/checkin/img/screenshot2CheckIn.webp" alt="새벽 1시 서버 시각에 자동 출석하는 메인 화면" width="540" height="960" loading="lazy">
     <img src="/checkin/img/screenshot3Resin.webp" alt="레진과 가득 차는 시각, 탐사 파견·주전자·일일 의뢰와 원신 켜기 버튼" width="540" height="960" loading="lazy">
@@ -124,14 +124,31 @@
     <img src="/checkin/img/screenshot7Trust.webp" alt="비밀번호 저장 안 함, 서버·광고 없음, 1MB 미만" width="540" height="960" loading="lazy">
   </div>
 
-  <div class="tiles">
+  <div class="shots" aria-label="웹 화면" data-for="ios" hidden>
+    <img src="/genshin-codes/img/web1Codes.webp" alt="지금 쓸 수 있는 리딤 코드 목록, 누르면 공식 입력 페이지" width="540" height="960" loading="lazy">
+    <img src="/genshin-codes/img/web2Alert.webp" alt="새 코드 알림 받기 창" width="540" height="960" loading="lazy">
+    <img src="/genshin-codes/img/web3Reruns.webp" alt="한정 캐릭터 복각표" width="540" height="960" loading="lazy">
+    <img src="/genshin-codes/img/web4Events.webp" alt="진행 중인 이벤트 목록" width="540" height="960" loading="lazy">
+  </div>
+
+  <div class="tiles" data-for="android">
     <div><b>리딤 자동 입력</b>방송 코드까지 찾아 넣어요. 원석은 우편함으로.</div>
     <div><b>새벽 1시 출석</b>호요랩 서버 시각에 맞춰 매일.</div>
     <div><b>레진 알림·위젯</b>정한 개수가 되면 알려 줘요.</div>
     <div><b>복각표·픽업 알림</b>기다리는 캐릭터가 뜨면 알려 줘요.</div>
   </div>
-  <div class="trust">
+  <div class="trust" data-for="android">
     <span>공식 로그인 페이지</span><span>비밀번호 저장 안 함</span><span>로그인은 폰 안에만</span><span>서버·광고 없음</span><span>1MB 미만</span>
+  </div>
+
+  <div class="tiles" data-for="ios" hidden>
+    <div><b>코드 바로 입력</b>누르면 코드가 채워진 공식 페이지로.</div>
+    <div><b>새 코드 알림</b>방송 코드도 올라오면 바로.</div>
+    <div><b>복각표</b>마지막 픽업 뒤 몇 버전 지났는지.</div>
+    <div><b>이벤트</b>끝나는 날이 가까운 순서로.</div>
+  </div>
+  <div class="trust" data-for="ios" hidden>
+    <span>로그인 없음</span><span>설치 없음</span><span>무료·광고 없음</span><span>알림은 켤 때만</span>
   </div>
 
   <h2>자주 묻는 것</h2>
