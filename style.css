@@ -13,7 +13,10 @@ body {
   margin: 0; background: var(--bg); color: var(--ink);
   font: 16px/1.7 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   padding: 0 max(16px, env(safe-area-inset-left)) 48px max(16px, env(safe-area-inset-right));
+  /* 한글은 단어 중간에서 줄을 바꾸지 않고, 마지막 줄에 한 단어만 남지 않게 */
+  word-break: keep-all; overflow-wrap: break-word; text-wrap: pretty;
 }
+h1, h2, h3 { text-wrap: balance; }
 main { max-width: 680px; margin: 0 auto; }
 header.hero {
   background: var(--hero); color: var(--hero-ink); border-radius: 24px;
