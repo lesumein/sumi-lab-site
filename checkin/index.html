@@ -84,8 +84,15 @@
   .vs b { display: block; font-size: 13px; margin-bottom: 2px; }
   .vs .no { color: var(--muted); }
 
-  /* 화면 미리보기: 옆으로 넘기기 */
-  .shots { margin: 18px -16px 4px; }
+  /* 화면 미리보기: 옆으로 넘기기(이 페이지의 주인공이라 크게) */
+  .shots { margin: 22px -16px 6px; gap: 14px; }
+  .shots img { width: 64%; max-width: 300px; border-radius: 20px; border: 0; box-shadow: 0 10px 30px rgba(20,26,46,.18); }
+  .assure { display: flex; gap: 10px; align-items: flex-start; margin: 14px 4px 6px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .assure svg { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--accent); }
+  .faq { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+  .faq details { margin: 0; border: 0; border-radius: 0; border-top: 1px solid var(--line); background: none; padding: 14px 16px; }
+  .faq details:first-child { border-top: 0; }
+  .faq summary { font-size: 15px; font-weight: 600; }
 
   /* 하는 일: 작은 타일 */
   .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0 10px; }
@@ -149,27 +156,13 @@
     <img src="/genshin-codes/img/web4Events.webp" alt="진행 중인 이벤트 목록" width="540" height="960" loading="lazy">
   </div>
 
-  <div class="tiles" data-for="android">
-    <div><b>리딤 자동 입력</b>방송 코드까지 찾아 넣어요. 원석은 우편함으로.</div>
-    <div><b>새벽 1시 출석</b>호요랩 서버 시각에 맞춰 매일.</div>
-    <div><b>레진 알림·위젯</b>정한 개수가 되면 알려 줘요.</div>
-    <div><b>로그인 없이도</b>코드 보기와 새 코드 알림은 바로 돼요.</div>
-  </div>
-  <div class="trust" data-for="android">
-    <span>공식 로그인 페이지</span><span>비밀번호 저장 안 함</span><span>로그인은 폰 안에만</span><span>서버·광고 없음</span><span>1MB 미만</span>
-  </div>
-
-  <div class="tiles" data-for="ios" hidden>
-    <div><b>코드 바로 입력</b>누르면 코드가 채워진 공식 페이지로.</div>
-    <div><b>새 코드 알림</b>방송 코드도 올라오면 바로.</div>
-    <div><b>복각표</b>마지막 픽업 뒤 몇 버전 지났는지.</div>
-    <div><b>이벤트</b>끝나는 날이 가까운 순서로.</div>
-  </div>
-  <div class="trust" data-for="ios" hidden>
-    <span>로그인 없음</span><span>설치 없음</span><span>무료·광고 없음</span><span>알림은 켤 때만</span>
-  </div>
+  <p class="assure" data-for="android"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5Zm-1.2 13.6-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4Z"/></svg>
+    공식 로그인 페이지로 직접 로그인하고, 비밀번호는 저장하지 않아요. 로그인 정보는 폰 안에만 있고, 서버도 광고도 없어요.</p>
+  <p class="assure" data-for="ios" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5Zm-1.2 13.6-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4Z"/></svg>
+    로그인도 설치도 없어요. 무료이고 광고도 없어요. 알림은 켤 때만 알림 서비스에 정보가 저장돼요.</p>
 
   <h2>자주 묻는 것</h2>
+  <div class="faq">
   <details>
     <summary>계정에 문제 생기지 않아요?</summary>
     <p>호요랩 웹에서 사람이 출석 버튼을 누를 때와 같은 요청을 하루 한 번 보내요. 다만 HoYoverse가 만든 공식 앱은 아니라는 점은 알고 써 주세요.</p>
@@ -179,15 +172,13 @@
     <p>호요랩 앱이나 브라우저에서 따로 로그인해도 이 앱 로그인은 그대로예요. 로그인은 1년 동안 유지되고, 만료 2주 전에 알림으로 알려 드려요. 알림을 눌러 다시 로그인하면 그 자리에서 바로 출석해요.</p>
   </details>
   <details>
-    <summary>'항목을 찾을 수 없음'이 떠요</summary>
-    <p>대부분 그룹에 가입한 구글 계정과 플레이스토어 계정이 달라서 그래요. 플레이스토어 앱을 열고 오른쪽 위 프로필을 눌러 그룹에 가입한 계정으로 바꾼 뒤, 이 페이지에서 '설치'를 다시 눌러 주세요. 가입 직후에는 몇 분 걸릴 수 있어요.</p>
-  </details>
-  <details>
     <summary>더 자세히(하는 일, 개인정보)</summary>
     <p>여러 계정 등록, 보충 출석, 이번 달 보상 합계, 출석 보상 달력, 알림 종류별로 끄기(밤에는 소리 없이), 메인 화면 카드 순서 바꾸기도 돼요.
       앱은 하루에 몇 번 호요랩과 짧게 통신할 뿐이라 배터리·데이터 부담이 거의 없어요.
       자세한 내용은 <a href="/checkin/privacy/">개인정보처리방침</a>과 <a href="https://github.com/lesumein/genshin-checkin" target="_blank" rel="noopener">소스 코드</a>에 있어요.</p>
   </details>
+  </div>
+
 
   <footer class="muted">
     불편한 점은 <a href="mailto:apps@sumi.kr">apps@sumi.kr</a> · <a href="/checkin/privacy/">개인정보처리방침</a><br>
