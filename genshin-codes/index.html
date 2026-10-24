@@ -162,6 +162,11 @@
   <section data-panel="pickup" hidden>
     <div class="pickup" id="pickup"><div class="period">불러오는 중...</div></div>
     <div id="boards"></div>
+    <a class="app-link" href="/checkin/">
+      <img src="/checkin/img/icon.png" alt="">
+      <div>기다리는 캐릭터 픽업 알림은 앱에서<small>원신 리딤 자동출첵 · 캐릭터를 누르면 픽업이 열릴 때 알려 줘요</small></div>
+      <span aria-hidden="true">›</span>
+    </a>
   </section>
 
   <section data-panel="events" hidden>
@@ -319,7 +324,7 @@
         <span class="pill rnew">신규</span><span class="pill chron">집록</span><span class="pill none">복각 없음</span></div>` : ""}
       <div class="grid">${list.map(tile).join("")}</div></div>`;
     $("boards").innerHTML = board("한정 캐릭터", ranked(false), true) + board("상시 캐릭터", ranked(true), false)
-      + '<p class="tip">원소 아이콘은 직접 그린 그림이에요 · 자료: 원신 위키(CC BY-SA)</p>';
+;
   }
 
   // ---------- 이벤트 ----------
