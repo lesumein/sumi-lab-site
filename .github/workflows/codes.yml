@@ -28,6 +28,17 @@ jobs:
         with:
           python-version: "3.12"
 
+      # 수동 실행할 때만: 알림 키가 맞는지 읽기 전용 요청으로 확인한다(알림은 보내지 않는다. 키는 출력하지 않는다).
+      - name: Check OneSignal key
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+        run: |
+          if [ -z "$ONESIGNAL_API_KEY" ]; then echo "ONESIGNAL_API_KEY 없음"; exit 0; fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Key $ONESIGNAL_API_KEY" \
+            "https://api.onesignal.com/notifications?app_id=b45e38a4-bb0d-44c2-8d58-33869fde35c8&limit=1")
+          echo "OneSignal 키 확인: HTTP $code"
+
       - name: Build codes.json and events.json
         env:
           ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
