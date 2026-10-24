@@ -8,10 +8,10 @@
 <meta property="og:title" content="원신 코드·픽업 · Sumi Lab">
 <meta property="og:description" content="리딤 코드는 누르면 바로 입력 페이지로. 새 코드 알림도 받을 수 있어요.">
 <meta property="og:image" content="https://apps.sumi.kr/genshin-codes/icon-512.png">
-<meta name="theme-color" content="#1F2742">
+<meta name="theme-color" content="#EDEFF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F121A" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="원신 코드">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/genshin-codes/manifest.webmanifest">
 <link rel="icon" href="/genshin-codes/icon-192.png">
 <link rel="apple-touch-icon" href="/genshin-codes/apple-touch-icon.png">
@@ -22,107 +22,157 @@
   :root { --pyro:#D9573A; --hydro:#3A86D6; --electro:#9A63CF; --cryo:#5DB7D3; --anemo:#3BA88F; --geo:#C99A2E; --dendro:#6FA83A;
           --live:#4E8A55; --warn:#B04A2A; --chip:#E9ECF3; --hero-muted:#A8AFC6; }
   @media (prefers-color-scheme: dark) { :root { --chip:#272D3D; --warn:#E07A55; } }
-  body { padding-top: env(safe-area-inset-top); }
-  header.hero { margin-top: 20px; position: relative; overflow: hidden; }
-  header.hero::after { content:""; position:absolute; right:-40px; top:-40px; width:170px; height:170px; border-radius:50%;
-    border:1px solid rgba(255,255,255,.12); background: radial-gradient(circle, rgba(255,255,255,.07) 0 30%, transparent 31%); }
-  .section-title { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:28px 4px 10px; }
-  .section-title h2 { margin:0; font-size:18px; }
-  .section-title span { color:var(--muted); font-size:13px; }
-  .group { background:var(--surface); border:1px solid var(--line); border-radius:20px; overflow:hidden; }
-  .code-row { display:flex; align-items:center; gap:12px; padding:12px 18px; border-top:1px solid var(--line); }
-  .code-row:first-child { border-top:0; }
-  .code-row.opened { opacity:.55; }
-  .code-main { flex:1; min-width:0; }
-  .code-line { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-  .code { font: 700 16px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing:.04em; color:var(--ink);
-          background:none; border:0; padding:0; cursor:pointer; }
-  .pill { font-size:11px; font-weight:700; line-height:1; padding:4px 7px; border-radius:8px; white-space:nowrap; }
-  .pill.live { background:var(--live); color:#F2EEE3; }
-  .pill.new { background:var(--gold); color:#2A1F08; }
-  .pill.server { background:var(--chip); color:var(--muted); }
-  .pill.server.only { background:var(--hydro); color:#fff; }
-  .detail { color:var(--muted); font-size:13px; line-height:1.5; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .detail .soon { color:var(--warn); font-weight:600; }
-  .enter { flex:none; font-weight:700; font-size:14px; color:var(--accent); text-decoration:none; padding:8px 0 8px 8px; }
-  .more { display:block; width:100%; border:0; border-top:1px solid var(--line); background:none; color:var(--muted);
-          font:inherit; font-size:14px; padding:12px; cursor:pointer; }
-  .hint { color:var(--muted); font-size:13px; margin:8px 4px 0; }
+  body { padding-top: 0; padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+  main { max-width: 560px; }
 
-  .pickup { background:var(--hero); color:var(--hero-ink); border-radius:24px; padding:20px 20px 16px; position:relative; overflow:hidden; }
-  .pickup h3 { margin:0; color:var(--gold); font-size:18px; }
-  .pickup .period { color:var(--hero-muted); font-size:13px; }
-  .tokens { display:flex; gap:10px; margin:14px 0 4px; flex-wrap:wrap; }
-  .token { width:76px; text-align:center; }
-  .circle { width:52px; height:52px; border-radius:50%; margin:0 auto; display:grid; place-items:center; border:2px solid var(--gold); }
-  .circle svg { width:30px; height:30px; }
-  .token b { display:block; font-size:13px; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .waits { border-top:1px solid rgba(255,255,255,.18); margin-top:10px; padding-top:10px; font-size:13px; color:var(--hero-muted); }
-  .waits ol { list-style:none; padding:0; margin:8px 0 0; display:flex; flex-wrap:wrap; gap:6px; }
-  .waits li { background:rgba(255,255,255,.08); color:var(--hero-ink); border-radius:10px; padding:4px 10px; font-size:13px; }
-  .waits li em { font-style:normal; color:var(--gold); font-weight:700; margin-left:4px; }
+  /* 위: 앱 이름과 알림 버튼 */
+  .bar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: calc(10px + env(safe-area-inset-top)) 0 8px;
+         display: flex; align-items: center; gap: 10px; }
+  .bar img { width: 34px; height: 34px; border-radius: 10px; }
+  .bar h1 { font-size: 20px; margin: 0; flex: 1; }
+  .icon-btn { position: relative; width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--ink);
+              display: grid; place-items: center; cursor: pointer; }
+  .icon-btn svg { width: 24px; height: 24px; }
+  .icon-btn .dot { position: absolute; top: 9px; right: 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--gold);
+                   border: 2px solid var(--bg); }
+  .icon-btn.on { color: var(--accent); }
 
-  .event { display:block; text-decoration:none; color:var(--ink); background:var(--surface); border:1px solid var(--line);
-           border-radius:20px; overflow:hidden; margin-bottom:12px; }
-  .event img { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; background:var(--hero); }
-  .event div { padding:12px 16px 14px; }
-  .event strong { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:15px; line-height:1.45; }
-  .event span { color:var(--muted); font-size:13px; }
+  /* 탭 */
+  .tabs { display: flex; gap: 4px; background: var(--chip); border-radius: 14px; padding: 4px; margin: 4px 0 14px; }
+  .tabs button { flex: 1; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--muted);
+                 padding: 8px 0; border-radius: 10px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 
-  .alert-card { background:var(--surface); border:1px solid var(--gold); border-radius:20px; padding:16px 18px; }
-  .alert-card strong { display:block; }
-  .alert-card p { margin:4px 0 12px; color:var(--muted); font-size:14px; }
-  .buttons { display:flex; gap:8px; flex-wrap:wrap; }
-  .btn { display:inline-block; text-decoration:none; font-weight:700; font-size:14px; padding:9px 14px; border-radius:12px;
-         background:var(--chip); color:var(--ink); border:0; cursor:pointer; font-family:inherit; }
-  .btn.primary { background:var(--hero); color:var(--hero-ink); }
-  @media (prefers-color-scheme: dark) { .btn.primary { background:var(--gold); color:#2A1F08; } }
-  .toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:#1B2030; color:#F2EEE3;
-           padding:10px 16px; border-radius:12px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; }
-  .toast.show { opacity:1; }
-  .empty { padding:18px; color:var(--muted); font-size:14px; }
+  /* 리딤 코드 */
+  .group { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+  .code-row { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+  .code-row:first-child { border-top: 0; }
+  .code-row.opened { opacity: .5; }
+  .code-main { flex: 1; min-width: 0; }
+  .code-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .code { font: 700 16px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .04em; color: var(--ink);
+          background: none; border: 0; padding: 0; cursor: pointer; }
+  .pill { font-size: 11px; font-weight: 700; line-height: 1; padding: 4px 7px; border-radius: 8px; white-space: nowrap; }
+  .pill.live { background: var(--live); color: #F2EEE3; }
+  .pill.new { background: var(--gold); color: #2A1F08; }
+  .pill.server { background: var(--chip); color: var(--muted); }
+  .pill.server.only { background: var(--hydro); color: #fff; }
+  .detail { color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .detail .soon { color: var(--warn); font-weight: 600; }
+  .enter { flex: none; font-weight: 700; font-size: 14px; color: var(--accent); text-decoration: none; padding: 10px 0 10px 8px; }
+  .more { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); background: none; color: var(--muted);
+          font: inherit; font-size: 14px; padding: 12px; cursor: pointer; }
+  .tip { color: var(--muted); font-size: 12px; text-align: center; margin: 10px 0 0; }
+
+  /* 픽업 */
+  .pickup { background: var(--hero); color: var(--hero-ink); border-radius: 24px; padding: 20px; position: relative; overflow: hidden; }
+  .pickup::after { content: ""; position: absolute; right: -40px; top: -40px; width: 150px; height: 150px; border-radius: 50%;
+                   border: 1px solid rgba(255,255,255,.12); }
+  .pickup h2 { margin: 0; color: var(--gold); font-size: 18px; }
+  .pickup .period { color: var(--hero-muted); font-size: 13px; }
+  .tokens { display: flex; gap: 8px; margin: 14px 0 0; flex-wrap: wrap; }
+  .token { width: 76px; text-align: center; }
+  .circle { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto; display: grid; place-items: center; border: 2px solid var(--gold); }
+  .circle svg { width: 30px; height: 30px; }
+  .token b { display: block; font-size: 13px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .waits { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-top: 12px; }
+  .waits h3 { margin: 0 0 10px; font-size: 15px; }
+  .waits h3 span { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 6px; }
+  .waits ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .waits li { background: var(--chip); border-radius: 10px; padding: 5px 10px; font-size: 14px; }
+  .waits li em { font-style: normal; color: var(--warn); font-weight: 700; margin-left: 4px; }
+
+  /* 이벤트 */
+  .event { display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+           border-radius: 20px; overflow: hidden; margin-bottom: 12px; }
+  .event img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; background: var(--hero); }
+  .event div { padding: 12px 16px 14px; }
+  .event strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; line-height: 1.45; }
+  .event span { color: var(--muted); font-size: 13px; }
+
+  /* 안드로이드 앱 안내(작게) */
+  .app-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); background: var(--surface);
+              border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-top: 14px; }
+  .app-link img { width: 36px; height: 36px; border-radius: 10px; }
+  .app-link div { flex: 1; font-size: 14px; line-height: 1.4; }
+  .app-link small { display: block; color: var(--muted); font-size: 12px; }
+
+  /* 알림 시트 */
+  .scrim { position: fixed; inset: 0; background: rgba(10,12,20,.45); z-index: 10; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 11; background: var(--surface); border-radius: 24px 24px 0 0;
+           padding: 10px 20px calc(20px + env(safe-area-inset-bottom)); max-width: 560px; margin: 0 auto; }
+  .sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 14px; }
+  .sheet h2 { margin: 0 0 4px; font-size: 18px; }
+  .sheet p { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .sheet .btn-wide { display: block; width: 100%; border: 0; border-radius: 14px; padding: 13px; font: inherit; font-weight: 700; font-size: 15px;
+                     cursor: pointer; background: var(--hero); color: var(--hero-ink); text-align: center; text-decoration: none; }
+  @media (prefers-color-scheme: dark) { .sheet .btn-wide { background: var(--gold); color: #2A1F08; } }
+  .sheet .btn-wide.quiet { background: var(--chip); color: var(--ink); }
+  .sheet details { margin: -4px 0 14px; font-size: 14px; }
+  .sheet summary { color: var(--accent); font-weight: 700; cursor: pointer; }
+  .sheet ol { margin: 8px 0 0; padding-left: 1.2em; color: var(--ink); }
+  .sheet .fine { margin: 12px 0 0; font-size: 12px; text-align: center; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #1B2030; color: #F2EEE3;
+           padding: 10px 16px; border-radius: 12px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .empty { padding: 18px; color: var(--muted); font-size: 14px; text-align: center; }
+  footer { margin-top: 28px; text-align: center; font-size: 12px; }
 </style>
 </head>
 <body>
 <main>
-  <header class="hero">
-    <p class="eyebrow">SUMI LAB · 로그인 없이</p>
+  <div class="bar">
+    <img src="/genshin-codes/icon-192.png" alt="">
     <h1>원신 코드·픽업</h1>
-    <p>지금 쓸 수 있는 리딤 코드는 누르면 바로 입력 페이지로. 지금 픽업과 진행 중인 이벤트도 한눈에.</p>
-  </header>
+    <button class="icon-btn" id="bell" type="button" aria-label="새 코드 알림">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1Z"/></svg>
+      <span class="dot" id="bellDot" hidden></span>
+    </button>
+  </div>
 
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="codes">코드</button>
+    <button role="tab" aria-selected="false" data-tab="pickup">픽업</button>
+    <button role="tab" aria-selected="false" data-tab="events">이벤트</button>
+  </div>
 
-  <div class="section-title"><h2>지금 쓸 수 있는 리딤 코드</h2><span id="codesCount"></span></div>
-  <div class="group" id="codes"><div class="empty">불러오는 중...</div></div>
-  <p class="hint">코드를 누르면 복사, '입력'을 누르면 공식 입력 페이지가 코드가 채워진 채 열려요. 입력 페이지에서는 HoYoverse 계정 로그인이 필요해요.</p>
-
-  <section class="alert-card" id="alerts" style="margin-top:16px">
-    <strong>새 코드가 나오면 알림 받기</strong>
-    <p id="pushText">새 리딤 코드가 올라오면 이 기기로 알려 줘요. 앱 설치나 가입은 필요 없어요.</p>
-    <div class="buttons">
-      <button class="btn primary" type="button" id="pushOn">알림 받기</button>
-      <button class="btn" type="button" id="pushOff" hidden>알림 끄기</button>
-    </div>
+  <section data-panel="codes">
+    <div class="group" id="codes"><div class="empty">불러오는 중...</div></div>
+    <p class="tip">코드를 누르면 복사 · '입력'은 공식 입력 페이지</p>
+    <a class="app-link" href="/checkin/">
+      <img src="/checkin/img/icon.png" alt="">
+      <div>안드로이드는 자동으로 입력돼요<small>원신 리딤 자동출첵 · 매일 출석도 알아서</small></div>
+      <span aria-hidden="true">›</span>
+    </a>
   </section>
 
-  <div class="section-title"><h2>픽업</h2><span><a href="/checkin/">안드로이드 앱의 복각표 ›</a></span></div>
-  <section class="pickup" id="pickup"><div class="period">불러오는 중...</div></section>
+  <section data-panel="pickup" hidden>
+    <div class="pickup" id="pickup"><div class="period">불러오는 중...</div></div>
+    <div class="waits" id="waits" hidden></div>
+  </section>
 
-  <div class="section-title"><h2>진행 중인 이벤트</h2><span>HoYoLAB</span></div>
-  <div id="events"><div class="group empty">불러오는 중...</div></div>
+  <section data-panel="events" hidden>
+    <div id="events"><div class="group empty">불러오는 중...</div></div>
+  </section>
 
-  <a class="card" href="/checkin/" style="margin-top:28px">
-    <strong>안드로이드라면 자동으로</strong>
-    <span>앱이 매일 새벽 1시에 출석하고, 새 리딤 코드도 알아서 입력해요. 레진 알림과 위젯도 있어요.</span>
-  </a>
-
-  <footer>
-    자료: 원신 위키(genshin-impact.fandom.com, CC BY-SA), HoYoLAB 공개 목록. 1시간마다(금요일 밤에는 15분마다) 새로 만들어요.<br>
-    이 페이지는 로그인하지 않아요. 알림을 켠 경우에만 알림 서비스(OneSignal)에 알림 받을 정보가 저장돼요. <a href="/genshin-codes/privacy/">개인정보처리방침</a><br>
-    <a href="/">Sumi Lab</a> · 원신은 HoYoverse의 상표이며 이 페이지는 HoYoverse와 관련이 없어요.
+  <footer class="muted">
+    자료: 원신 위키(CC BY-SA)·HoYoLAB · <a href="/genshin-codes/privacy/">개인정보</a><br>
+    HoYoverse와 관련 없는 비공식 페이지예요 · <a href="/">Sumi Lab</a>
   </footer>
 </main>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="grab"></div>
+  <h2 id="sheetTitle">새 코드 알림</h2>
+  <p id="sheetText">새 리딤 코드가 올라오면 이 기기로 알려 줘요.</p>
+  <details id="sheetHelp" hidden><summary>해결 방법</summary><ol id="sheetSteps"></ol></details>
+  <button class="btn-wide" type="button" id="sheetAction">알림 받기</button>
+  <p class="fine muted">알림을 켤 때만 알림 서비스(OneSignal)에 정보가 저장돼요. <a href="/genshin-codes/privacy/">자세히</a></p>
+</div>
 <div class="toast" id="toast"></div>
+
 <script>
 (() => {
   const DATA = "/checkin/data/";
@@ -132,7 +182,7 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   // 날짜는 원신 서버 기준(UTC+8)
-  const today = (() => { const d = new Date(Date.now() + 8 * 3600e3); return d.toISOString().slice(0, 10); })();
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
   const dayDiff = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
   const md = iso => { const [, m, d] = iso.split("-"); return `${+m}월 ${+d}일`; };
 
@@ -145,111 +195,21 @@
     const t = $("toast"); t.textContent = msg; t.classList.add("show");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1600);
   }
-  async function copy(text) {
-    try { await navigator.clipboard.writeText(text); toast(text + " 복사했어요"); }
-    catch { toast("복사하지 못했어요. 길게 눌러 선택해 주세요"); }
-  }
-  document.addEventListener("click", e => {
+  document.addEventListener("click", async e => {
     const b = e.target.closest("[data-copy]");
-    if (b) copy(b.dataset.copy);
+    if (!b) return;
+    try { await navigator.clipboard.writeText(b.dataset.copy); toast(b.dataset.copy + " 복사했어요"); }
+    catch { toast("복사하지 못했어요"); }
   });
 
-  // ---------- 새 코드 알림(웹 푸시, OneSignal) ----------
-  // 알림을 켜기 전에는 OneSignal을 불러오지 않는다(아무 정보도 보내지 않게). 한 번 켰으면 다음부터 상태를 보려고 불러온다.
-  const ONESIGNAL_APP_ID = "b45e38a4-bb0d-44c2-8d58-33869fde35c8";
-  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-  const pushText = $("pushText"), pushOn = $("pushOn"), pushOff = $("pushOff");
-  let sdk;
-  function loadSdk() {
-    if (sdk) return sdk;
-    sdk = new Promise((resolve, reject) => {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async OneSignal => {
-        try {
-          await OneSignal.init({
-            appId: ONESIGNAL_APP_ID,
-            serviceWorkerPath: "/genshin-codes/OneSignalSDKWorker.js",
-            serviceWorkerParam: { scope: "/genshin-codes/" },
-            notifyButton: { enable: false },
-            autoResubscribe: true,
-            // 대시보드 기본값인 영어 구독 창과 영어 환영 알림은 쓰지 않는다(버튼으로만 켠다).
-            promptOptions: { slidedown: { prompts: [{ type: "push", autoPrompt: false }] } },
-            welcomeNotification: { disable: true },
-          });
-          OneSignal.User.PushSubscription.addEventListener("change", showPush);
-          resolve(OneSignal);
-        } catch (e) { reject(e); }
-      });
-      const s = document.createElement("script");
-      s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-      s.defer = true;
-      // 광고·추적 차단(브레이브 쉴드, 차단 앱 등)이 알림 스크립트를 막으면 여기로 온다.
-      s.onerror = () => { sdk = null; reject(new Error("blocked")); };
-      document.head.appendChild(s);
-    });
-    return sdk;
+  // ---------- 탭(마지막으로 본 탭을 기억) ----------
+  function showTab(name) {
+    document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name));
+    document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== name);
+    store.set("tab", name);
   }
-  function setPush(text, on, off) {
-    pushText.textContent = text;
-    pushOn.hidden = !on; pushOff.hidden = !off;
-  }
-  // 카톡·네이버·인스타 같은 앱 안의 브라우저는 웹 알림을 받을 수 없다. 원래 브라우저로 열도록 안내한다.
-  const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(navigator.userAgent);
-  async function showPush() {
-    if (inApp) {
-      const kakao = /KAKAOTALK/i.test(navigator.userAgent);
-      pushText.innerHTML = kakao
-        ? '카카오톡 안에서는 알림을 받을 수 없어요. <a href="kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href) + '">다른 브라우저로 열기</a>를 누른 뒤 거기서 \'알림 받기\'를 눌러 주세요.'
-        : "이 앱 안의 브라우저에서는 알림을 받을 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 고른 뒤 거기서 '알림 받기'를 눌러 주세요.";
-      pushOn.hidden = true; pushOff.hidden = true;
-      return;
-    }
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      if (ios && !standalone) return setPush("아이폰은 사파리 공유 버튼 → '홈 화면에 추가'로 이 페이지를 추가한 뒤, 거기서 열어 '알림 받기'를 눌러 주세요(iOS 16.4 이상).", false, false);
-      return setPush("이 브라우저는 알림을 지원하지 않아요. 크롬이나 사파리(홈 화면에 추가)에서 열어 주세요.", false, false);
-    }
-    if (Notification.permission === "denied") return setPush("알림이 차단돼 있어요. 브라우저 사이트 설정에서 알림을 허용해 주세요.", false, false);
-    if (!store.get("push", false)) return setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요. 앱 설치나 가입은 필요 없어요.", true, false);
-    if (Notification.permission !== "granted") return setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요.", true, false);
-    setPush("알림 받는 중이에요. 새 코드가 올라오면 알려 줄게요.", false, true);
-    // 켜 둔 기기는 들를 때마다 알림 스크립트를 불러 구독이 끊기지 않게 한다(autoResubscribe).
-    loadSdk().catch(() => {});
-  }
-  pushOn.onclick = async () => {
-    pushOn.disabled = true;
-    // 브라우저는 누른 그 순간에만 허용 창을 띄워 준다. 알림 스크립트를 받기 전에 먼저 묻는다.
-    const asked = Notification.permission === "granted" ? Promise.resolve("granted") : Notification.requestPermission();
-    try {
-      const [OneSignal, permission] = await Promise.all([loadSdk(), asked]);
-      if (permission !== "granted") {
-        toast("알림을 허용하지 않았어요");
-      } else {
-        await OneSignal.User.PushSubscription.optIn();
-        store.set("push", true);
-        toast("알림을 켰어요");
-      }
-    } catch (e) {
-      toast("알림을 켜지 못했어요");
-      const brave = !!navigator.brave;
-      pushText.textContent = e && e.message === "blocked"
-        ? (brave
-          ? "브레이브의 쉴드가 알림 서비스(OneSignal)를 막고 있어요. 주소창의 사자 아이콘에서 이 사이트의 쉴드를 끄고, 설정 → 개인정보 보호 → '푸시 메시지에 Google 서비스 사용'을 켠 뒤 다시 눌러 주세요. 크롬이나 삼성 인터넷에서 열면 바로 돼요."
-          : "광고·추적 차단 기능이 알림 서비스(OneSignal)를 막고 있어요. 이 사이트의 차단을 끄거나 크롬·삼성 인터넷에서 열어 다시 눌러 주세요.")
-        : "알림을 켜지 못했어요: " + (e && (e.message || e.name) || e) + " · 이 화면을 캡처해 보내 주세요.";
-      pushOn.disabled = false;
-      return;
-    }
-    pushOn.disabled = false;
-    showPush();
-  };
-  pushOff.onclick = async () => {
-    try { (await loadSdk()).User.PushSubscription.optOut(); } catch {}
-    store.set("push", false);
-    toast("알림을 껐어요");
-    showPush();
-  };
-  showPush();
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  showTab(["codes", "pickup", "events"].includes(store.get("tab")) ? store.get("tab") : "codes");
 
   async function load(name) {
     const r = await fetch(DATA + name, { cache: "no-cache" });
@@ -262,19 +222,15 @@
   function renderCodes() {
     const opened = new Set(store.get("opened", []));
     const box = $("codes");
-    $("codesCount").textContent = codes.length ? `${codes.length}개` : "";
     if (!codes.length) { box.innerHTML = '<div class="empty">지금 쓸 수 있는 코드가 없어요.</div>'; return; }
     const shown = expanded ? codes : codes.slice(0, FOLDED);
     box.innerHTML = shown.map(c => {
       const isNew = c.discovered && dayDiff(today, c.discovered) <= 3;
       const soon = c.expiry && dayDiff(c.expiry, today) <= 2;
       const until = c.expiry ? (c.expiry === today ? "오늘까지" : md(c.expiry) + "까지") : null;
-      const pills = [
-        c.live ? '<span class="pill live">방송</span>' : isNew ? '<span class="pill new">NEW</span>' : "",
-        `<span class="pill server${c.server === "전 서버" ? "" : " only"}">${esc(c.server)}</span>`,
-      ].join("");
-      const detail = [until ? `<span class="${soon ? "soon" : ""}">${until}</span>` : "", c.reward ? esc(c.reward) : ""]
-        .filter(Boolean).join(" · ");
+      const pills = (c.live ? '<span class="pill live">방송</span>' : isNew ? '<span class="pill new">NEW</span>' : "")
+        + (c.server === "전 서버" ? "" : `<span class="pill server only">${esc(c.server)}</span>`);
+      const detail = [until ? `<span class="${soon ? "soon" : ""}">${until}</span>` : "", c.reward ? esc(c.reward) : ""].filter(Boolean).join(" · ");
       const was = opened.has(c.code);
       return `<div class="code-row${was ? " opened" : ""}">
         <div class="code-main">
@@ -290,9 +246,7 @@
   document.addEventListener("click", e => {
     const a = e.target.closest("[data-open]");
     if (!a) return;
-    const opened = new Set(store.get("opened", []));
-    opened.add(a.dataset.open);
-    store.set("opened", [...opened]);
+    store.set("opened", [...new Set([...store.get("opened", []), a.dataset.open])]);
     setTimeout(renderCodes, 300);
   });
 
@@ -313,28 +267,24 @@
   }
   function renderPickup(data) {
     const live = data.banners.filter(b => b.start <= today && b.end >= today);
-    const next = live.length ? [] : (() => {
-      const starts = data.banners.filter(b => b.start > today).map(b => b.start).sort();
-      return starts.length ? data.banners.filter(b => b.start === starts[0]) : [];
-    })();
+    const starts = data.banners.filter(b => b.start > today).map(b => b.start).sort();
+    const next = live.length || !starts.length ? [] : data.banners.filter(b => b.start === starts[0]);
     const shown = live.length ? live : next;
     const byName = Object.fromEntries(data.characters.map(c => [c.name, c]));
     const chars = [...new Set(shown.flatMap(b => b.chars))].map(n => byName[n]).filter(Boolean);
-    const title = live.length ? "지금 픽업" : next.length ? "다음 픽업" : "복각표";
-    const period = live.length
-      ? (e => `${md(e)}까지 · ${dayDiff(e, today)}일 남음`)(live.map(b => b.end).sort()[0])
-      : next.length ? `${md(next[0].start)}부터` : "";
+    const title = live.length ? "지금 픽업" : next.length ? "다음 픽업" : "픽업";
+    const end = live.map(b => b.end).sort()[0];
+    const period = live.length ? `${md(end)}까지 · ${dayDiff(end, today)}일 남음` : next.length ? `${md(next[0].start)}부터` : "";
+    $("pickup").innerHTML = `<h2>${title}</h2><div class="period">${period}</div>${chars.length ? `<div class="tokens">${chars.map(token).join("")}</div>` : ""}`;
     // 마지막 픽업 뒤 지난 버전 수(앱과 같은 계산), 상시 캐릭터는 뺀다.
-    const current = data.versions.filter(v => v.start <= today).pop();
-    const nowIdx = data.versions.indexOf(current);
+    const nowIdx = data.versions.indexOf(data.versions.filter(v => v.start <= today).pop());
     const waits = data.characters.filter(c => !c.standard).map(c => {
       const i = data.versions.findIndex(v => v.v === c.last);
       return i < 0 ? null : [c, Math.max(0, nowIdx - i)];
-    }).filter(Boolean).sort((a, b) => b[1] - a[1] || a[0].ko.localeCompare(b[0].ko, "ko")).slice(0, 8);
-    $("pickup").innerHTML = `<h3>${title}</h3><div class="period">${period}</div>
-      ${chars.length ? `<div class="tokens">${chars.map(token).join("")}</div>` : ""}
-      <div class="waits">오래 기다린 캐릭터 · 마지막 픽업 뒤 지난 버전
-        <ol>${waits.map(([c, n]) => `<li>${esc(c.ko)}<em>${n}</em></li>`).join("")}</ol></div>`;
+    }).filter(Boolean).sort((a, b) => b[1] - a[1] || a[0].ko.localeCompare(b[0].ko, "ko")).slice(0, 10);
+    $("waits").hidden = false;
+    $("waits").innerHTML = `<h3>오래 기다린 캐릭터<span>마지막 픽업 뒤 지난 버전</span></h3>
+      <ol>${waits.map(([c, n]) => `<li>${esc(c.ko)}<em>${n}</em></li>`).join("")}</ol>`;
   }
 
   // ---------- 이벤트 ----------
@@ -349,6 +299,129 @@
         <div><strong>${esc(e.name)}</strong><span>${when}</span></div></a>`;
     }).join("") : '<div class="group empty">지금 진행 중인 이벤트가 없어요.</div>';
   }
+
+  // ---------- 새 코드 알림(웹 푸시, OneSignal) ----------
+  // 알림을 켜기 전에는 OneSignal을 불러오지 않는다(아무 정보도 보내지 않게). 켜 둔 기기는 들를 때마다 불러 구독을 유지한다.
+  const ONESIGNAL_APP_ID = "b45e38a4-bb0d-44c2-8d58-33869fde35c8";
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  // 카톡·네이버·인스타 같은 앱 안의 브라우저는 웹 알림을 받을 수 없다.
+  const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(ua);
+  let sdk, blocked = false;
+  function loadSdk() {
+    if (sdk) return sdk;
+    sdk = new Promise((resolve, reject) => {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async OneSignal => {
+        try {
+          await OneSignal.init({
+            appId: ONESIGNAL_APP_ID,
+            serviceWorkerPath: "/genshin-codes/OneSignalSDKWorker.js",
+            serviceWorkerParam: { scope: "/genshin-codes/" },
+            notifyButton: { enable: false },
+            autoResubscribe: true,
+            // 대시보드 기본값인 영어 구독 창과 영어 환영 알림은 쓰지 않는다(버튼으로만 켠다).
+            promptOptions: { slidedown: { prompts: [{ type: "push", autoPrompt: false }] } },
+            welcomeNotification: { disable: true },
+          });
+          resolve(OneSignal);
+        } catch (e) { reject(e); }
+      });
+      const s = document.createElement("script");
+      s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+      s.defer = true;
+      // 광고·추적 차단(브레이브 쉴드, 차단 앱 등)이 알림 스크립트를 막으면 여기로 온다.
+      s.onerror = () => { sdk = null; reject(new Error("blocked")); };
+      document.head.appendChild(s);
+    });
+    return sdk;
+  }
+
+  /** 지금 기기에서 알림 상태: on, off, denied, inapp, ios-home, unsupported, blocked */
+  function pushState() {
+    if (inApp) return "inapp";
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return ios && !standalone ? "ios-home" : "unsupported";
+    if (blocked) return "blocked";
+    if (Notification.permission === "denied") return "denied";
+    return store.get("push", false) && Notification.permission === "granted" ? "on" : "off";
+  }
+
+  const sheet = $("sheet"), scrim = $("scrim");
+  function steps(list) {
+    $("sheetHelp").hidden = !list;
+    $("sheetSteps").innerHTML = (list || []).map(s => `<li>${s}</li>`).join("");
+  }
+  function renderSheet() {
+    const state = pushState(), action = $("sheetAction"), text = $("sheetText");
+    action.hidden = false; action.className = "btn-wide"; action.removeAttribute("href");
+    steps(null);
+    $("bellDot").hidden = state !== "on";
+    $("bell").classList.toggle("on", state === "on");
+    switch (state) {
+      case "on":
+        text.textContent = "알림 받는 중이에요. 새 코드가 올라오면 알려 줄게요.";
+        action.textContent = "알림 끄기"; action.className = "btn-wide quiet"; break;
+      case "off":
+        text.textContent = "새 리딤 코드가 올라오면 이 기기로 알려 줘요.";
+        action.textContent = "알림 받기"; break;
+      case "inapp":
+        if (/KAKAOTALK/i.test(ua)) {
+          text.textContent = "카카오톡 안에서는 알림을 받을 수 없어요. 다른 브라우저로 열어 주세요.";
+          action.textContent = "다른 브라우저로 열기";
+        } else {
+          text.textContent = "이 앱 안에서는 알림을 받을 수 없어요. 메뉴의 '다른 브라우저로 열기'로 열어 주세요.";
+          action.hidden = true;
+        }
+        break;
+      case "ios-home":
+        text.textContent = "아이폰은 홈 화면에 추가한 뒤 받을 수 있어요(iOS 16.4 이상).";
+        steps(["사파리 아래쪽 공유 버튼을 눌러요", "'홈 화면에 추가'를 눌러요", "홈 화면의 아이콘으로 열고 🔔을 눌러요"]);
+        action.hidden = true; break;
+      case "denied":
+        text.textContent = "이 사이트의 알림이 차단돼 있어요.";
+        steps(["주소창 왼쪽의 사이트 정보(자물쇠)를 눌러요", "'알림'을 '허용'으로 바꿔요", "페이지를 새로고침하고 다시 눌러요"]);
+        action.hidden = true; break;
+      case "blocked":
+        text.textContent = navigator.brave ? "브레이브의 쉴드가 알림을 막고 있어요." : "광고 차단 기능이 알림을 막고 있어요.";
+        steps(navigator.brave
+          ? ["주소창의 사자 아이콘에서 이 사이트의 쉴드를 꺼요", "설정 → 개인정보 보호 → '푸시 메시지에 Google 서비스 사용'을 켜요", "브레이브를 다시 열고 눌러요"]
+          : ["이 사이트의 광고 차단을 꺼요", "또는 크롬·삼성 인터넷·사파리에서 열어요"]);
+        action.textContent = "다시 시도"; break;
+      default:
+        text.textContent = "이 브라우저는 알림을 지원하지 않아요. 크롬·삼성 인터넷에서 열어 주세요.";
+        action.hidden = true;
+    }
+  }
+  function openSheet(open) { sheet.hidden = scrim.hidden = !open; if (open) renderSheet(); }
+  $("bell").onclick = () => openSheet(true);
+  scrim.onclick = () => openSheet(false);
+  $("sheetAction").onclick = async () => {
+    const state = pushState(), action = $("sheetAction");
+    if (state === "inapp") { location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href); return; }
+    if (state === "on") {
+      try { (await loadSdk()).User.PushSubscription.optOut(); } catch {}
+      store.set("push", false); toast("알림을 껐어요"); renderSheet(); return;
+    }
+    action.disabled = true;
+    // 브라우저는 누른 그 순간에만 허용 창을 띄워 준다. 알림 스크립트를 받기 전에 먼저 묻는다.
+    const asked = Notification.permission === "granted" ? Promise.resolve("granted") : Notification.requestPermission();
+    blocked = false;
+    try {
+      const [OneSignal, permission] = await Promise.all([loadSdk(), asked]);
+      if (permission === "granted") {
+        await OneSignal.User.PushSubscription.optIn();
+        store.set("push", true); toast("알림을 켰어요");
+      } else toast("알림을 허용하지 않았어요");
+    } catch (e) {
+      if (e && e.message === "blocked") blocked = true;
+      else toast("알림을 켜지 못했어요");
+    }
+    action.disabled = false;
+    renderSheet();
+  };
+  renderSheet();
+  if (pushState() === "on") loadSdk().catch(() => {});
 
   load("codes.json").then(d => { codes = d.codes || []; renderCodes(); })
     .catch(() => { $("codes").innerHTML = '<div class="empty">코드 목록을 불러오지 못했어요.</div>'; });
