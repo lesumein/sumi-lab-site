@@ -24,6 +24,10 @@
   .stage h1 { margin: 18px 0 6px; font-size: 30px; line-height: 1.25; letter-spacing: -.01em; text-wrap: balance; }
   .stage h1 em { font-style: normal; color: var(--gold); }
   .stage p { margin: 0; color: #A8AFC6; font-size: 15px; line-height: 1.6; }
+  .stage { padding-bottom: 0; }
+  .phone { position: relative; width: 74%; max-width: 300px; height: 290px; margin: 20px auto 0; border-radius: 26px 26px 0 0;
+           overflow: hidden; border: 6px solid #2E3756; border-bottom: 0; box-shadow: 0 -10px 40px rgba(0,0,0,.35); background: #EDEFF5; }
+  .phone img { display: block; width: 100%; height: auto; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
   .chips span { font-size: 13px; padding: 5px 10px; border-radius: 12px; background: rgba(255,255,255,.09); color: var(--hero-ink); }
 
@@ -48,6 +52,12 @@
         font-size: 14px; text-decoration: none; border: 1px solid var(--line); color: var(--accent); white-space: nowrap; }
   .go.primary { background: var(--hero); border-color: var(--hero); color: var(--gold); }
   @media (prefers-color-scheme: dark) { .go.primary { background: var(--gold); border-color: var(--gold); color: #2A1F08; } }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 6px; }
+  .panel-head b { font-size: 16px; }
+  .panel-head span { font-size: 12px; color: var(--muted); }
+  details.help { margin: 8px 0 0; padding: 10px 12px; border: 0; border-radius: 14px; background: color-mix(in srgb, var(--gold) 16%, var(--surface)); }
+  details.help summary { font-size: 13px; color: var(--accent); }
+  details.help p { font-size: 13px; color: var(--ink); line-height: 1.55; }
   .warn-tip { margin: 8px 2px 0; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, var(--gold) 16%, var(--surface));
               font-size: 13px; line-height: 1.55; color: var(--ink); }
   .warn-tip b { display: block; color: var(--accent); }
@@ -81,11 +91,11 @@
   <section class="stage">
     <svg class="star" viewBox="0 0 24 24" fill="#F2EEE3" aria-hidden="true"><path d="M12 0c.8 6.4 5.6 11.2 12 12-6.4.8-11.2 5.6-12 12-.8-6.4-5.6-11.2-12-12C6.4 11.2 11.2 6.4 12 0Z"/></svg>
     <div class="who"><img src="/checkin/img/icon.png" alt="">원신 리딤 자동출첵 · Sumi Lab · 비공식 앱</div>
-    <h1>링크 안 눌러도,<br><em>원석은 우편함에.</em></h1>
-    <p>새 리딤 코드가 나오면 앱이 알아서 입력해요. 앱을 열지 않아도요.</p>
-    <div class="chips">
-      <span>리딤 자동 입력</span><span>새벽 1시 자동 출석</span><span>레진 알림·위젯</span>
-    </div>
+    <h1 data-for="android">링크 안 눌러도,<br><em>원석은 우편함에.</em></h1>
+    <p data-for="android">새 리딤 코드가 나오면 앱이 알아서 입력해요. 출석도 매일 새벽에.</p>
+    <h1 data-for="ios" hidden>새 리딤 코드,<br><em>놓치지 않게.</em></h1>
+    <p data-for="ios" hidden>누르면 코드가 채워진 입력 페이지로. 새 코드가 나오면 알림도 와요.</p>
+    <div class="phone"><img data-for="android" src="/checkin/img/hero-app.webp" alt="오늘 출석 완료, 17일째, 레진 142/200이 보이는 앱 메인 화면" width="635" height="1000"><img data-for="ios" hidden src="/checkin/img/hero-web.webp" alt="지금 쓸 수 있는 리딤 코드 16개가 보이는 웹 화면" width="635" height="1000"></div>
   </section>
 
   <div class="seg" role="tablist">
@@ -94,18 +104,15 @@
   </div>
 
   <section class="panel" data-for="android">
-    <p class="lead"><strong>지금은 플레이스토어 비공개 테스트 중이에요.</strong> 순서대로 눌러 주세요. 1번을 건너뛰면 2번이 열리지 않아요.</p>
+    <div class="panel-head"><b>설치 3단계</b><span>비공개 테스트 · 순서대로</span></div>
     <div class="step"><span class="n">1</span><div>테스터 그룹 가입<small>구글 계정으로 '그룹 가입'</small></div>
       <a class="go" href="https://groups.google.com/g/sumi-checkin-testers" target="_blank" rel="noopener">가입</a></div>
     <div class="step"><span class="n">2</span><div>플레이스토어에서 설치<small>'테스터 되기'가 보이면 먼저 눌러요</small></div>
       <a class="go primary" href="https://play.google.com/store/apps/details?id=kr.sumi.checkin" target="_blank" rel="noopener">설치</a></div>
     <div class="step"><span class="n">3</span><div>앱에서 호요랩 로그인<small>한 번이면 매일 알아서 돌아가요</small></div></div>
-    <div class="vs">
-      <div><b>로그인 전</b>코드 보기·바로 입력<br>새 코드 알림<br>복각표·픽업 알림</div>
-      <div><b>로그인 후</b>코드 <u>자동</u> 입력<br>매일 자동 출석<br>레진 알림·위젯</div>
-    </div>
-    <div class="warn-tip"><b>'항목을 찾을 수 없음'이 뜨면</b>그룹에 가입한 계정과 플레이스토어 계정이 달라서 그래요. 플레이스토어 앱 오른쪽 위 프로필을 눌러 <strong>가입한 계정으로 바꾼 뒤</strong> 다시 '설치'를 눌러 주세요.</div>
-    <p class="fine">안드로이드 8.0 이상 · 무료 · 광고 없음 · 테스트 기간(2주) 동안 지우지 말아 주세요</p>
+    <details class="help"><summary>'항목을 찾을 수 없음'이 떠요</summary>
+      <p>그룹에 가입한 계정과 플레이스토어 계정이 달라서 그래요. 플레이스토어 앱 오른쪽 위 프로필에서 <strong>가입한 계정으로 바꾼 뒤</strong> 다시 '설치'를 눌러 주세요.</p></details>
+    <p class="fine">안드로이드 8.0 이상 · 무료 · 광고 없음 · 테스트 2주 동안 지우지 말아 주세요</p>
   </section>
 
   <section class="panel" data-for="ios" hidden>
@@ -143,7 +150,7 @@
     <div><b>리딤 자동 입력</b>방송 코드까지 찾아 넣어요. 원석은 우편함으로.</div>
     <div><b>새벽 1시 출석</b>호요랩 서버 시각에 맞춰 매일.</div>
     <div><b>레진 알림·위젯</b>정한 개수가 되면 알려 줘요.</div>
-    <div><b>복각표·픽업 알림</b>기다리는 캐릭터가 뜨면 알려 줘요.</div>
+    <div><b>로그인 없이도</b>코드 보기와 새 코드 알림은 바로 돼요.</div>
   </div>
   <div class="trust" data-for="android">
     <span>공식 로그인 페이지</span><span>비밀번호 저장 안 함</span><span>로그인은 폰 안에만</span><span>서버·광고 없음</span><span>1MB 미만</span>
