@@ -53,6 +53,10 @@
         font-size: 14px; text-decoration: none; border: 1px solid var(--line); color: var(--accent); white-space: nowrap; }
   .go.primary { background: var(--hero); border-color: var(--hero); color: var(--gold); }
   @media (prefers-color-scheme: dark) { .go.primary { background: var(--gold); border-color: var(--gold); color: #2A1F08; } }
+  .cta { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 16px; margin-top: 6px;
+         background: var(--hero); color: var(--gold); font-weight: 700; font-size: 17px; text-decoration: none; }
+  .cta span { font-size: 22px; line-height: 1; }
+  @media (prefers-color-scheme: dark) { .cta { background: var(--gold); color: #2A1F08; } }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 6px; }
   .panel-head b { font-size: 16px; }
   .panel-head span { font-size: 12px; color: var(--muted); }
@@ -117,17 +121,9 @@
   </section>
 
   <section class="panel" data-for="ios" hidden>
-    <p class="lead"><strong>앱은 아직 안드로이드만 있어요.</strong> 대신 웹에서 지금 쓸 수 있는 코드를 보고, 누르면 바로 입력 페이지로 가요. 새 코드 알림도 받을 수 있어요.</p>
-    <a class="web-go" href="/genshin-codes/">
-      <img src="/genshin-codes/icon-192.png" alt="">
-      <div>원신 코드·픽업<small>리딤 코드 · 새 코드 알림 · 복각표 · 이벤트</small></div>
-      <span>열기 ›</span>
-    </a>
-    <div class="vs">
-      <div><b>웹 (아이폰·PC)</b>코드 보기·바로 입력<br>새 코드 알림<br>복각표·이벤트</div>
-      <div><b>앱 (안드로이드)</b>코드 <u>자동</u> 입력<br>매일 자동 출석<br>레진 알림·위젯</div>
-    </div>
-    <p class="fine">아이폰 알림: 사파리 공유 → '홈 화면에 추가' 후 거기서 🔔을 눌러요(iOS 16.4 이상).</p>
+    <div class="panel-head"><b>웹에서 바로 써요</b><span>설치·로그인 없음</span></div>
+    <a class="cta" href="/genshin-codes/">원신 코드·픽업 열기<span aria-hidden="true">›</span></a>
+    <p class="fine">아이폰은 사파리 공유 → '홈 화면에 추가'하면 앱처럼 열리고 새 코드 알림도 와요(iOS 16.4 이상). 자동 입력·출석은 안드로이드 앱만 돼요.</p>
   </section>
 
   <div class="shots" aria-label="앱 화면" data-for="android">
