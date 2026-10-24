@@ -102,6 +102,17 @@
   .trust span { font-size: 12px; padding: 5px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
   h2 { margin: 22px 4px 8px; font-size: 16px; }
   footer { text-align: center; font-size: 12px; }
+  /* 스크린샷 크게 보기 */
+  .shots img { cursor: zoom-in; }
+  .viewer { position: fixed; inset: 0; z-index: 30; background: rgba(8,10,18,.92); display: flex; align-items: center; justify-content: center;
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); touch-action: pan-y; }
+  .viewer img { max-width: min(92vw, 520px); max-height: 86vh; border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .viewer button { position: absolute; border: 0; background: rgba(255,255,255,.12); color: #fff; width: 44px; height: 44px; border-radius: 50%;
+                   font-size: 22px; line-height: 1; cursor: pointer; }
+  .viewer .close { top: calc(14px + env(safe-area-inset-top)); right: 14px; }
+  .viewer .prev { left: 10px; top: 50%; transform: translateY(-50%); }
+  .viewer .next { right: 10px; top: 50%; transform: translateY(-50%); }
+  .viewer .count { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; color: #A8AFC6; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -204,6 +215,48 @@
     show(saved || (ios ? "ios" : "android"));
     // 왼쪽 위 로고: 페이지 맨 위로.
     document.getElementById("home").onclick = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  })();
+</script>
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="화면 크게 보기">
+  <img id="viewerImg" alt="">
+  <button class="close" type="button" aria-label="닫기">×</button>
+  <button class="prev" type="button" aria-label="이전">‹</button>
+  <button class="next" type="button" aria-label="다음">›</button>
+  <div class="count" id="viewerCount"></div>
+</div>
+<script>
+  // 스크린샷을 누르면 크게 보고, 옆으로 넘기거나 화살표로 다음 장, 바깥을 누르거나 ×로 닫는다.
+  (() => {
+    const viewer = document.getElementById("viewer"), big = document.getElementById("viewerImg"), count = document.getElementById("viewerCount");
+    let list = [], at = 0, startX = null;
+    function show(i) {
+      at = (i + list.length) % list.length;
+      big.src = list[at].src; big.alt = list[at].alt;
+      count.textContent = `${at + 1} / ${list.length}`;
+    }
+    function open(img) {
+      list = [...img.closest(".shots").querySelectorAll("img")];
+      show(list.indexOf(img)); viewer.hidden = false; document.body.style.overflow = "hidden";
+    }
+    function close() { viewer.hidden = true; document.body.style.overflow = ""; }
+    document.querySelectorAll(".shots img").forEach(img => img.addEventListener("click", () => open(img)));
+    viewer.querySelector(".close").onclick = close;
+    viewer.querySelector(".prev").onclick = e => { e.stopPropagation(); show(at - 1); };
+    viewer.querySelector(".next").onclick = e => { e.stopPropagation(); show(at + 1); };
+    viewer.addEventListener("click", e => { if (e.target === viewer) close(); });
+    big.addEventListener("click", e => { e.stopPropagation(); show(at + 1); });
+    viewer.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
+    viewer.addEventListener("touchend", e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX; startX = null;
+      if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
+    });
+    document.addEventListener("keydown", e => {
+      if (viewer.hidden) return;
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight") show(at + 1);
+      if (e.key === "ArrowLeft") show(at - 1);
+    });
   })();
 </script>
 </body>
