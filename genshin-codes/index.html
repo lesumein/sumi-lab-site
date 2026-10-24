@@ -75,12 +75,24 @@
   .circle { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto; display: grid; place-items: center; border: 2px solid var(--gold); }
   .circle svg { width: 30px; height: 30px; }
   .token b { display: block; font-size: 13px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .waits { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-top: 12px; }
-  .waits h3 { margin: 0 0 10px; font-size: 15px; }
-  .waits h3 span { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 6px; }
-  .waits ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-  .waits li { background: var(--chip); border-radius: 10px; padding: 5px 10px; font-size: 14px; }
-  .waits li em { font-style: normal; color: var(--warn); font-weight: 700; margin-left: 4px; }
+  .board { background: var(--hero); color: var(--hero-ink); border-radius: 24px; padding: 18px 10px 8px; margin-top: 12px; }
+  .board h3 { margin: 0 8px; font-size: 17px; display: flex; align-items: center; justify-content: space-between; }
+  .board h3 small { font-size: 12px; font-weight: 700; background: rgba(255,255,255,.12); border-radius: 10px; padding: 3px 8px; }
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 8px 4px; font-size: 12px; color: var(--hero-muted); }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px 2px; margin-top: 14px; }
+  .tile { text-align: center; min-width: 0; }
+  .tile.recent { opacity: .55; } .tile.mid { opacity: .85; }
+  .tile .face { position: relative; width: 52px; height: 52px; margin: 0 auto; }
+  .tile .orb { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; }
+  .tile .orb svg { width: 32px; height: 32px; }
+  .badge { position: absolute; right: -8px; bottom: -4px; min-width: 24px; padding: 2px 6px; border-radius: 12px; border: 2px solid var(--hero);
+           color: #fff; font-weight: 700; font-size: 13px; line-height: 1.2; }
+  .badge.big { font-size: 15px; } .badge.now { font-size: 10px; padding: 3px 6px; }
+  .tile b { display: block; font-size: 12px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+  .tile b.strong { font-size: 13px; }
+  .tile .tag { display: inline-block; margin-top: 2px; font-size: 10px; color: var(--hero-muted); }
+  .tile .tag.pill { color: #fff; padding: 2px 6px; }
+  .pill.rnew { background: var(--live); color: #F2EEE3; } .pill.chron { background: var(--gold); color: #2A1F08; } .pill.none { background: var(--hydro); color: #fff; }
 
   /* 이벤트 */
   .event { display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
@@ -149,7 +161,7 @@
 
   <section data-panel="pickup" hidden>
     <div class="pickup" id="pickup"><div class="period">불러오는 중...</div></div>
-    <div class="waits" id="waits" hidden></div>
+    <div id="boards"></div>
   </section>
 
   <section data-panel="events" hidden>
@@ -276,15 +288,38 @@
     const end = live.map(b => b.end).sort()[0];
     const period = live.length ? `${md(end)}까지 · ${dayDiff(end, today)}일 남음` : next.length ? `${md(next[0].start)}부터` : "";
     $("pickup").innerHTML = `<h2>${title}</h2><div class="period">${period}</div>${chars.length ? `<div class="tokens">${chars.map(token).join("")}</div>` : ""}`;
-    // 마지막 픽업 뒤 지난 버전 수(앱과 같은 계산), 상시 캐릭터는 뺀다.
-    const nowIdx = data.versions.indexOf(data.versions.filter(v => v.start <= today).pop());
-    const waits = data.characters.filter(c => !c.standard).map(c => {
+    // 복각표 전체: 마지막 픽업 뒤 지난 버전 수(앱과 같은 계산). 한정과 상시를 나눠 오래 기다린 순으로.
+    const current = data.versions.filter(v => v.start <= today).pop();
+    const nowIdx = data.versions.indexOf(current);
+    const label = v => (data.versions.find(x => x.v === v) || {}).label || v;
+    const liveNames = new Set(live.flatMap(b => b.chars));
+    const ranked = standard => data.characters.filter(c => !!c.standard === standard).map(c => {
       const i = data.versions.findIndex(v => v.v === c.last);
       return i < 0 ? null : [c, Math.max(0, nowIdx - i)];
-    }).filter(Boolean).sort((a, b) => b[1] - a[1] || a[0].ko.localeCompare(b[0].ko, "ko")).slice(0, 10);
-    $("waits").hidden = false;
-    $("waits").innerHTML = `<h3>오래 기다린 캐릭터<span>마지막 픽업 뒤 지난 버전</span></h3>
-      <ol>${waits.map(([c, n]) => `<li>${esc(c.ko)}<em>${n}</em></li>`).join("")}</ol>`;
+    }).filter(Boolean).sort((a, b) => b[1] - a[1] || a[0].ko.localeCompare(b[0].ko, "ko"));
+    const tone = n => n <= 2 ? "#4E8A55" : n <= 5 ? "#A87B22" : n <= 8 ? "#C2662A" : "#B04A2A";
+    const tile = ([c, n]) => {
+      const [color, svg] = ELEMENT[c.element] || ["--muted", ""];
+      const isLive = liveNames.has(c.name);
+      const tag = c.first && c.first === current.v ? '<span class="tag pill rnew">신규</span>'
+        : c.chronicled ? '<span class="tag pill chron">집록</span>'
+        : !c.standard && c.runs <= 1 ? '<span class="tag pill none">복각 없음</span>'
+        : `<span class="tag">${esc(label(c.last))}</span>`;
+      const fade = isLive ? "" : n <= 2 ? " recent" : n <= 5 ? " mid" : "";
+      const name = c.ko.trim().split(" ").pop();
+      return `<div class="tile${fade}" title="${esc(c.ko)} · 마지막 ${esc(label(c.last))}">
+        <div class="face"><div class="orb" style="background:linear-gradient(135deg, color-mix(in srgb, var(${color}) 65%, #fff), var(${color}))">
+          <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${svg}</svg></div>
+          <span class="badge${isLive ? " now" : n >= 9 ? " big" : ""}" style="background:${isLive ? "#4E8A55" : tone(n)}">${isLive ? "NOW" : n}</span></div>
+        <b class="${n >= 9 ? "strong" : ""}" style="color:color-mix(in srgb, var(${color}) 55%, #fff)">${esc(name)}</b>${tag}</div>`;
+    };
+    const board = (title, list, legend) => `<div class="board">
+      <h3>${title}${legend ? `<small>지금 ${esc(current.label)}</small>` : ""}</h3>
+      ${legend ? `<div class="legend"><span class="badge" style="position:static;background:#B04A2A">12</span>마지막 픽업 뒤 지난 버전 수
+        <span class="pill rnew">신규</span><span class="pill chron">집록</span><span class="pill none">복각 없음</span></div>` : ""}
+      <div class="grid">${list.map(tile).join("")}</div></div>`;
+    $("boards").innerHTML = board("한정 캐릭터", ranked(false), true) + board("상시 캐릭터", ranked(true), false)
+      + '<p class="tip">원소 아이콘은 직접 그린 그림이에요 · 자료: 원신 위키(CC BY-SA)</p>';
   }
 
   // ---------- 이벤트 ----------
