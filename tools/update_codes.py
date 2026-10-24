@@ -7,6 +7,9 @@
 - 원신 Fandom 위키 'Promotional Code' 문서: 코드, 쓸 수 있는 서버, 보상, 올라온 날, 만료일
 - HoYoLAB 공식 코드 목록(공개): 특별 방송 코드. 위키보다 먼저 올라온다.
 - HoYoLAB 원신 이벤트 목록(공개)
+- 공개 코드 모음 두 곳(ennead, seria): 받을 수 있는 코드를 놓치지 않게 참고만 한다.
+  여기에만 있는 코드는 '확인 안 된 코드'(unverified)로 따로 보여 주고(써 보니 안 되는 코드가 섞여 있다),
+  위키 코드를 여기서 만료로 표시하면 빼지 않고 '만료됐을 수 있어요'(old) 묶음으로 내린다.
 
 새 코드가 생기면 웹앱에서 알림을 켠 기기에 웹 푸시를 한 번 보낸다(OneSignal, 키는 ONESIGNAL_API_KEY).
 로그인 정보는 어디에도 쓰지 않는다.
@@ -47,6 +50,7 @@ BASE_NAMES = {
 }
 # 공식 목록은 보상을 그림으로만 준다. 자주 나오는 그림만 이름을 붙인다(파일 이름 앞부분).
 OFFICIAL_ICONS = {"150a941de99e": "원석", "503abf5f2f2c": "모라", "d3eb1267f27b": "정제용 마법 광석", "46de1e881b5d": "영웅의 경험"}
+AGGREGATORS = ("https://api.ennead.cc/mihoyo/genshin/codes", "https://hoyo-codes.seria.moe/codes?game=genshin")
 KST = timezone(timedelta(hours=9))
 UTC8 = timezone(timedelta(hours=8))
 
@@ -215,6 +219,25 @@ def events():
     return out
 
 
+def aggregator_codes():
+    """공개 코드 모음 두 곳. (활성 코드 → 보상 원문, 만료로 표시된 코드 집합). 실패한 곳은 건너뛴다."""
+    active, inactive = {}, set()
+    try:
+        d = get(AGGREGATORS[0])
+        for c in d.get("active", []):
+            active.setdefault(c["code"].upper(), ";".join(r.replace(" ×", "*") for r in c.get("rewards", [])))
+        inactive |= {c["code"].upper() for c in d.get("inactive", [])}
+    except Exception as e:
+        print("ennead 실패:", e, file=sys.stderr)
+    try:
+        for c in get(AGGREGATORS[1]).get("codes", []):
+            if c.get("status") == "OK":
+                active.setdefault(c["code"].upper(), c.get("rewards") or "")
+    except Exception as e:
+        print("seria 실패:", e, file=sys.stderr)
+    return active, inactive - set(active)
+
+
 # ---------- 알림 ----------
 
 def notify(new):
@@ -316,11 +339,19 @@ def main():
             if e["code"] not in seen:
                 seen.add(e["code"])
                 codes.append(e)
+        # 공개 코드 모음에만 있는 코드는 '확인 안 된 코드'로 보탠다(놓치지 않게).
+        active, inactive = aggregator_codes()
+        for code, raw in active.items():
+            if code not in seen:
+                seen.add(code)
+                learn_names({n for n, _ in reward_parts(raw)}, names)
+                codes.append({"code": code, "server": "전 서버", "reward": reward_text(raw, names) if raw else None,
+                              "discovered": None, "expiry": None, "live": False, "unverified": True})
         reported = expired_reported()
         codes = [c for c in codes if c["code"] not in reported]
         for c in codes:
-            c["old"] = (not c["expiry"] and not c["live"] and c["discovered"] is not None
-                        and (today - date.fromisoformat(c["discovered"])).days > OLD_DAYS)
+            c["old"] = (not c["live"] and not c.get("unverified") and (c["code"] in inactive or (
+                not c["expiry"] and c["discovered"] is not None and (today - date.fromisoformat(c["discovered"])).days > OLD_DAYS)))
 
     try:
         event_list = events()
@@ -328,8 +359,9 @@ def main():
         print("이벤트 실패:", e, file=sys.stderr)
         event_list = json.loads(EVENTS.read_text()) if EVENTS.exists() else []
 
-    old = {c["code"] for c in previous["codes"]} if previous else None
-    new = [c for c in codes if old is not None and c["code"] not in old]
+    # 알림은 확인된 코드만. 확인 안 된 코드가 나중에 위키·공식 목록에 오르면 그때 새 코드로 알린다.
+    old = {c["code"] for c in previous["codes"] if not c.get("unverified")} if previous else None
+    new = [c for c in codes if old is not None and not c.get("unverified") and c["code"] not in old]
     if old is None:
         print("처음 만드는 목록이라 알림은 보내지 않아요")
 

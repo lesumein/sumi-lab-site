@@ -180,6 +180,7 @@
     <div class="label" id="restLabel" hidden>그 밖의 코드</div>
     <div class="group" id="codes"><div class="empty">불러오는 중...</div></div>
     <details class="aged" id="agedBox" hidden><summary id="agedSum"></summary><div class="group" id="agedCodes"></div></details>
+    <details class="aged" id="unverBox" hidden><summary id="unverSum"></summary><div class="group" id="unverCodes"></div></details>
     <p class="tip">코드를 누르면 복사 · '입력'은 공식 입력 페이지</p>
     <a class="app-link" href="/checkin/">
       <img src="/checkin/img/icon.png" alt="">
@@ -203,7 +204,7 @@
   </section>
 
   <footer class="muted">
-    자료: 원신 위키(CC BY-SA)·HoYoLAB · <a href="/genshin-codes/privacy/">개인정보</a><br>
+    자료: 원신 위키(CC BY-SA)·HoYoLAB·공개 코드 모음 · <a href="/genshin-codes/privacy/">개인정보</a><br>
     HoYoverse와 관련 없는 비공식 페이지예요 · <a href="/">Sumi Lab</a>
   </footer>
 </main>
@@ -276,7 +277,7 @@
   }
 
   // ---------- 리딤 코드 ----------
-  let codes = [], expanded = false;
+  let all = [], codes = [], expanded = false;
   function row(c, opened) {
     const isNew = c.discovered && dayDiff(today, c.discovered) <= 3;
     const soon = c.expiry && dayDiff(c.expiry, today) <= 2;
@@ -295,6 +296,9 @@
   }
   function renderCodes() {
     const opened = new Set(store.get("opened", []));
+    // 다른 코드 모음 사이트에만 있는 코드는 맨 아래 따로(안 될 수도 있어요). 개수·요약에는 넣지 않는다.
+    const unver = all.filter(c => c.unverified);
+    codes = all.filter(c => !c.unverified);
     // 만료일을 모르는 채 오래된 코드는 맨 아래 접힌 묶음으로(만료됐을 수 있어요).
     const live = codes.filter(c => c.live), rest = codes.filter(c => !c.live && !c.old), aged = codes.filter(c => !c.live && c.old);
     // 위 요약: 큰 숫자 + 방송·새 코드·곧 끝나는 코드
@@ -307,6 +311,9 @@
     $("liveBox").hidden = !live.length;
     $("liveCodes").innerHTML = live.map(c => row(c, opened)).join("");
     $("restLabel").hidden = !live.length || !rest.length;
+    $("unverBox").hidden = !unver.length;
+    $("unverSum").textContent = `확인 안 된 코드 ${unver.length}개 · 안 될 수도 있어요`;
+    $("unverCodes").innerHTML = unver.map(c => row(c, opened)).join("");
     const box = $("codes");
     if (!codes.length) { box.innerHTML = '<div class="empty">지금 쓸 수 있는 코드가 없어요.</div>'; return; }
     box.hidden = !rest.length;
@@ -523,7 +530,7 @@
   renderSheet();
   if (pushState() === "on") loadSdk().catch(() => {});
 
-  load("codes.json").then(d => { codes = d.codes || []; renderCodes(); })
+  load("codes.json").then(d => { all = d.codes || []; renderCodes(); })
     .catch(() => { $("codes").innerHTML = '<div class="empty">코드 목록을 불러오지 못했어요.</div>'; });
   load("reruns.json").then(renderPickup)
     .catch(() => { $("pickup").innerHTML = '<div class="period">픽업 자료를 불러오지 못했어요.</div>'; });
