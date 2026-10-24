@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 # 겹쳐 돌면 같은 새 코드로 알림이 두 번 갈 수 있어 한 번에 하나만 돈다.
 concurrency:
@@ -57,3 +58,9 @@ jobs:
           # 복각표 작업이 먼저 커밋했을 수 있어 받아서 올린다.
           git pull --rebase -q origin main
           git push
+
+      # 혹시 멈췄다가 다시 켠 경우를 대비해, 돌 때마다 이 작업을 '켜짐'으로 확인해 둔다(복각표 작업과 같은 방식).
+      - name: Make sure the schedule stays enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/codes.yml/enable" || true
