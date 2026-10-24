@@ -1,0 +1,15 @@
+{
+  "name": "원신 코드·픽업",
+  "short_name": "원신 코드",
+  "description": "지금 쓸 수 있는 원신 리딤 코드, 지금 픽업, 진행 중인 이벤트. 로그인 없이.",
+  "lang": "ko",
+  "start_url": "/genshin/",
+  "scope": "/genshin/",
+  "display": "standalone",
+  "background_color": "#1F2742",
+  "theme_color": "#1F2742",
+  "icons": [
+    { "src": "/genshin/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/genshin/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,48 @@
+name: Update codes and events
+
+# 웹앱(apps.sumi.kr/genshin/)의 리딤 코드·이벤트 목록(checkin/data/codes.json, events.json)을 만든다.
+# 새 코드가 생기면 ntfy 주제에 알림을 한 번 올린다. 바뀐 게 있을 때만 커밋한다.
+on:
+  schedule:
+    # 1시간마다(정각을 피해 41분).
+    - cron: "41 * * * *"
+    # 금요일 밤 특별 방송 시간대(한국 시간 밤 9시~새벽 1시, UTC 12~16시)에는 15분마다.
+    - cron: "*/15 12-16 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# 겹쳐 돌면 같은 새 코드로 알림이 두 번 갈 수 있어 한 번에 하나만 돈다.
+concurrency:
+  group: codes
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build codes.json and events.json
+        env:
+          NTFY_TOPIC: sumi-genshin-codes
+        run: python3 tools/update_codes.py
+
+      - name: Commit if changed
+        run: |
+          if [ -z "$(git status --porcelain -- checkin/data)" ]; then
+            echo "변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add checkin/data
+          git commit -m "Update codes and events"
+          # 복각표 작업이 먼저 커밋했을 수 있어 받아서 올린다.
+          git pull --rebase -q origin main
+          git push
