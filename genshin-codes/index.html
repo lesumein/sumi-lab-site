@@ -173,6 +173,9 @@
             serviceWorkerParam: { scope: "/genshin-codes/" },
             notifyButton: { enable: false },
             autoResubscribe: true,
+            // 대시보드 기본값인 영어 구독 창과 영어 환영 알림은 쓰지 않는다(버튼으로만 켠다).
+            promptOptions: { slidedown: { prompts: [{ type: "push", autoPrompt: false }] } },
+            welcomeNotification: { disable: true },
           });
           OneSignal.User.PushSubscription.addEventListener("change", showPush);
           resolve(OneSignal);
@@ -197,21 +200,30 @@
     }
     if (Notification.permission === "denied") return setPush("알림이 차단돼 있어요. 브라우저 사이트 설정에서 알림을 허용해 주세요.", false, false);
     if (!store.get("push", false)) return setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요. 앱 설치나 가입은 필요 없어요.", true, false);
-    try {
-      const OneSignal = await loadSdk();
-      if (OneSignal.User.PushSubscription.optedIn) setPush("알림 받는 중이에요. 새 코드가 올라오면 알려 줄게요.", false, true);
-      else setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요.", true, false);
-    } catch { setPush("알림 기능을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.", true, false); }
+    if (Notification.permission !== "granted") return setPush("새 리딤 코드가 올라오면 이 기기로 알려 줘요.", true, false);
+    setPush("알림 받는 중이에요. 새 코드가 올라오면 알려 줄게요.", false, true);
+    // 켜 둔 기기는 들를 때마다 알림 스크립트를 불러 구독이 끊기지 않게 한다(autoResubscribe).
+    loadSdk().catch(() => {});
   }
   pushOn.onclick = async () => {
     pushOn.disabled = true;
+    // 브라우저는 누른 그 순간에만 허용 창을 띄워 준다. 알림 스크립트를 받기 전에 먼저 묻는다.
+    const asked = Notification.permission === "granted" ? Promise.resolve("granted") : Notification.requestPermission();
     try {
-      const OneSignal = await loadSdk();
-      await OneSignal.Notifications.requestPermission();
-      await OneSignal.User.PushSubscription.optIn();
-      store.set("push", OneSignal.User.PushSubscription.optedIn);
-      toast(OneSignal.User.PushSubscription.optedIn ? "알림을 켰어요" : "알림을 허용하지 않았어요");
-    } catch { toast("알림을 켜지 못했어요"); }
+      const [OneSignal, permission] = await Promise.all([loadSdk(), asked]);
+      if (permission !== "granted") {
+        toast("알림을 허용하지 않았어요");
+      } else {
+        await OneSignal.User.PushSubscription.optIn();
+        store.set("push", true);
+        toast("알림을 켰어요");
+      }
+    } catch (e) {
+      toast("알림을 켜지 못했어요");
+      pushText.textContent = "알림을 켜지 못했어요: " + (e && (e.message || e.name) || e) + " · 이 화면을 캡처해 보내 주세요.";
+      pushOn.disabled = false;
+      return;
+    }
     pushOn.disabled = false;
     showPush();
   };
