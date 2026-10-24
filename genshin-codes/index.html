@@ -194,7 +194,17 @@
     pushText.textContent = text;
     pushOn.hidden = !on; pushOff.hidden = !off;
   }
+  // 카톡·네이버·인스타 같은 앱 안의 브라우저는 웹 알림을 받을 수 없다. 원래 브라우저로 열도록 안내한다.
+  const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(navigator.userAgent);
   async function showPush() {
+    if (inApp) {
+      const kakao = /KAKAOTALK/i.test(navigator.userAgent);
+      pushText.innerHTML = kakao
+        ? '카카오톡 안에서는 알림을 받을 수 없어요. <a href="kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href) + '">다른 브라우저로 열기</a>를 누른 뒤 거기서 \'알림 받기\'를 눌러 주세요.'
+        : "이 앱 안의 브라우저에서는 알림을 받을 수 없어요. 오른쪽 위 메뉴에서 '다른 브라우저로 열기'를 고른 뒤 거기서 '알림 받기'를 눌러 주세요.";
+      pushOn.hidden = true; pushOff.hidden = true;
+      return;
+    }
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
       if (ios && !standalone) return setPush("아이폰은 사파리 공유 버튼 → '홈 화면에 추가'로 이 페이지를 추가한 뒤, 거기서 열어 '알림 받기'를 눌러 주세요(iOS 16.4 이상).", false, false);
       return setPush("이 브라우저는 알림을 지원하지 않아요. 크롬이나 사파리(홈 화면에 추가)에서 열어 주세요.", false, false);
