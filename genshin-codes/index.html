@@ -33,7 +33,8 @@
   .bar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: calc(10px + env(safe-area-inset-top)) 0 8px;
          display: flex; align-items: center; gap: 10px; }
   .bar img { width: 34px; height: 34px; border-radius: 10px; }
-  .bar h1 { font-size: 20px; margin: 0; flex: 1; }
+  .bar h1 { font-size: 20px; margin: 0; }
+  .home { flex: 1; display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
   .icon-btn { position: relative; width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--ink);
               display: grid; place-items: center; cursor: pointer; }
   .icon-btn svg { width: 24px; height: 24px; }
@@ -162,8 +163,7 @@
 <body>
 <main>
   <div class="bar">
-    <img src="/genshin-codes/icon-192.png" alt="">
-    <h1>원신 코드·픽업</h1>
+    <a class="home" href="/genshin-codes/" id="home" aria-label="처음으로(코드)"><img src="/genshin-codes/icon-192.png" alt=""><h1>원신 코드·픽업</h1></a>
     <button class="icon-btn" id="bell" type="button" aria-label="새 코드 알림">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1Z"/></svg>
       <span class="dot" id="bellDot" hidden></span>
@@ -263,6 +263,8 @@
     window.scrollTo(0, 0);
   }
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  // 왼쪽 위 로고: 처음 화면(코드 탭 맨 위)으로.
+  $("home").onclick = e => { e.preventDefault(); showTab("codes"); };
   showTab(["codes", "pickup", "events"].includes(store.get("tab")) ? store.get("tab") : "codes");
 
   async function load(name) {
