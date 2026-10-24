@@ -22,7 +22,11 @@
   :root { --pyro:#D9573A; --hydro:#3A86D6; --electro:#9A63CF; --cryo:#5DB7D3; --anemo:#3BA88F; --geo:#C99A2E; --dendro:#6FA83A;
           --live:#4E8A55; --warn:#B04A2A; --chip:#E9ECF3; --hero-muted:#A8AFC6; }
   @media (prefers-color-scheme: dark) { :root { --chip:#272D3D; --warn:#E07A55; } }
-  body { padding-top: 0; padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+  /* 앱의 큰 숫자 글꼴(Marcellus 숫자만, SIL OFL) */
+  @font-face { font-family: "Hoyo Numerals"; src: url("/genshin-codes/fonts/hoyo_numerals.ttf") format("truetype"); font-display: swap; }
+  body { padding-top: 0; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  [data-panel]:not([hidden]) { animation: rise .25s ease-out; }
   main { max-width: 560px; }
 
   /* 위: 앱 이름과 알림 버튼 */
@@ -37,11 +41,31 @@
                    border: 2px solid var(--bg); }
   .icon-btn.on { color: var(--accent); }
 
-  /* 탭 */
-  .tabs { display: flex; gap: 4px; background: var(--chip); border-radius: 14px; padding: 4px; margin: 4px 0 14px; }
-  .tabs button { flex: 1; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--muted);
-                 padding: 8px 0; border-radius: 10px; cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  /* 아래 탭(앱처럼) */
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: color-mix(in srgb, var(--surface) 92%, transparent);
+         backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line);
+         padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); }
+  .nav div { max-width: 560px; margin: 0 auto; display: flex; }
+  .nav button { flex: 1; border: 0; background: none; font: inherit; font-size: 11px; font-weight: 700; color: var(--muted);
+                display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; cursor: pointer; }
+  .nav button svg { width: 24px; height: 24px; }
+  .nav button[aria-selected="true"] { color: var(--ink); }
+  .nav button[aria-selected="true"] svg { color: var(--accent); }
+
+  /* 코드 탭 위 요약 */
+  .sum { position: relative; overflow: hidden; background: var(--hero); color: var(--hero-ink); border-radius: 24px; padding: 18px 20px; margin: 4px 0 14px; }
+  .sum::after { content: ""; position: absolute; right: -50px; top: -50px; width: 170px; height: 170px; border-radius: 50%; border: 1px solid rgba(255,255,255,.12); }
+  .sum .eyebrow { color: var(--hero-muted); font-size: 13px; }
+  .sum .big { display: flex; align-items: baseline; gap: 6px; margin-top: 2px; }
+  .sum .big b { font-family: "Hoyo Numerals", Georgia, serif; font-weight: 400; font-size: 56px; line-height: 1; color: var(--gold); }
+  .sum .big span { font-size: 17px; }
+  .sum .facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .sum .facts span { font-size: 12px; padding: 4px 9px; border-radius: 10px; background: rgba(255,255,255,.09); }
+  .sum .facts span.hot { background: var(--live); }
+  .sum .facts span.warn { background: rgba(224,122,85,.28); }
+  .label { margin: 16px 6px 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .group.live { border-color: color-mix(in srgb, var(--live) 45%, var(--line)); }
+  .code-row.copied .code { color: var(--live); }
 
   /* 리딤 코드 */
   .group { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
@@ -95,8 +119,11 @@
   .pill.rnew { background: var(--live); color: #F2EEE3; } .pill.chron { background: var(--gold); color: #2A1F08; } .pill.none { background: var(--hydro); color: #fff; }
 
   /* 이벤트 */
-  .event { display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
-           border-radius: 20px; overflow: hidden; margin-bottom: 12px; }
+  .event { position: relative; display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+           border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
+  .event .left { position: absolute; left: 10px; top: 10px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px;
+                 background: rgba(20,26,46,.72); color: #fff; }
+  .event .left.soon { background: var(--gold); color: #2A1F08; }
   .event img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; background: var(--hero); }
   .event div { padding: 12px 16px 14px; }
   .event strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; line-height: 1.45; }
@@ -125,7 +152,7 @@
   .sheet ol { margin: 8px 0 0; padding-left: 1.2em; color: var(--ink); }
   .sheet .fine { margin: 12px 0 0; font-size: 12px; text-align: center; }
 
-  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #1B2030; color: #F2EEE3;
+  .toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #1B2030; color: #F2EEE3;
            padding: 10px 16px; border-radius: 12px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20; white-space: nowrap; }
   .toast.show { opacity: 1; }
   .empty { padding: 18px; color: var(--muted); font-size: 14px; text-align: center; }
@@ -143,13 +170,11 @@
     </button>
   </div>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="codes">코드</button>
-    <button role="tab" aria-selected="false" data-tab="pickup">픽업</button>
-    <button role="tab" aria-selected="false" data-tab="events">이벤트</button>
-  </div>
 
   <section data-panel="codes">
+    <div class="sum" id="sum"><div class="eyebrow">지금 쓸 수 있는 리딤 코드</div><div class="big"><b>·</b></div></div>
+    <div id="liveBox" hidden><div class="label">방송 코드 · 먼저 넣어요</div><div class="group live" id="liveCodes"></div></div>
+    <div class="label" id="restLabel" hidden>그 밖의 코드</div>
     <div class="group" id="codes"><div class="empty">불러오는 중...</div></div>
     <p class="tip">코드를 누르면 복사 · '입력'은 공식 입력 페이지</p>
     <a class="app-link" href="/checkin/">
@@ -178,6 +203,12 @@
     HoYoverse와 관련 없는 비공식 페이지예요 · <a href="/">Sumi Lab</a>
   </footer>
 </main>
+
+<nav class="nav" role="tablist"><div>
+  <button role="tab" aria-selected="true" data-tab="codes"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm-1-4h18v3H3Zm8 0h2v14h-2Zm1 0c-2-4-5.5-3-4-.5.6.5 2 .5 4 .5Zm0 0c2 0 3.4 0 4-.5 1.5-2.5-2-3.5-4 .5Z"/></svg>코드</button>
+  <button role="tab" aria-selected="false" data-tab="pickup"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.6 4.9 4.3 8.6 9.2 9.2v1.6C16.3 13.4 12.6 17.1 12 22h-.1c-.6-4.9-4.3-8.6-9.1-9.2v-1.6C7.6 10.6 11.3 6.9 11.9 2Z"/></svg>픽업</button>
+  <button role="tab" aria-selected="false" data-tab="events"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2Zm-2 8v9h14v-9Zm3 2h3v3H8Z"/></svg>이벤트</button>
+</div></nav>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
@@ -215,8 +246,13 @@
   document.addEventListener("click", async e => {
     const b = e.target.closest("[data-copy]");
     if (!b) return;
-    try { await navigator.clipboard.writeText(b.dataset.copy); toast(b.dataset.copy + " 복사했어요"); }
-    catch { toast("복사하지 못했어요"); }
+    try {
+      await navigator.clipboard.writeText(b.dataset.copy);
+      // 누른 자리에서 바로 '복사됨'으로 바뀌었다가 돌아온다.
+      const text = b.textContent, rowEl = b.closest(".code-row");
+      b.textContent = "복사됨 ✓"; rowEl && rowEl.classList.add("copied");
+      setTimeout(() => { b.textContent = text; rowEl && rowEl.classList.remove("copied"); }, 1200);
+    } catch { toast("복사하지 못했어요"); }
   });
 
   // ---------- 탭(마지막으로 본 탭을 기억) ----------
@@ -224,6 +260,7 @@
     document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name));
     document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== name);
     store.set("tab", name);
+    window.scrollTo(0, 0);
   }
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab));
   showTab(["codes", "pickup", "events"].includes(store.get("tab")) ? store.get("tab") : "codes");
@@ -236,27 +273,41 @@
 
   // ---------- 리딤 코드 ----------
   let codes = [], expanded = false;
+  function row(c, opened) {
+    const isNew = c.discovered && dayDiff(today, c.discovered) <= 3;
+    const soon = c.expiry && dayDiff(c.expiry, today) <= 2;
+    const until = c.expiry ? (c.expiry === today ? "오늘까지" : md(c.expiry) + "까지") : null;
+    const pills = (!c.live && isNew ? '<span class="pill new">NEW</span>' : "")
+      + (c.server === "전 서버" ? "" : `<span class="pill server only">${esc(c.server)}</span>`);
+    const detail = [until ? `<span class="${soon ? "soon" : ""}">${until}</span>` : "", c.reward ? esc(c.reward) : ""].filter(Boolean).join(" · ");
+    const was = opened.has(c.code);
+    return `<div class="code-row${was ? " opened" : ""}">
+      <div class="code-main">
+        <div class="code-line"><button class="code" data-copy="${esc(c.code)}" title="복사">${esc(c.code)}</button>${pills}</div>
+        ${detail ? `<div class="detail">${detail}</div>` : ""}
+      </div>
+      <a class="enter" href="${GIFT(c.code)}" target="_blank" rel="noopener" data-open="${esc(c.code)}">${was ? "열어 봄" : "입력 ›"}</a>
+    </div>`;
+  }
   function renderCodes() {
     const opened = new Set(store.get("opened", []));
+    const live = codes.filter(c => c.live), rest = codes.filter(c => !c.live);
+    // 위 요약: 큰 숫자 + 방송·새 코드·곧 끝나는 코드
+    const fresh = codes.filter(c => c.discovered && dayDiff(today, c.discovered) <= 3).length;
+    const ending = codes.filter(c => c.expiry && dayDiff(c.expiry, today) <= 2).length;
+    const todo = codes.filter(c => !opened.has(c.code)).length;
+    $("sum").innerHTML = `<div class="eyebrow">지금 쓸 수 있는 리딤 코드</div>
+      <div class="big"><b>${codes.length}</b><span>개</span></div>
+      <div class="facts">${live.length ? `<span class="hot">방송 코드 ${live.length}개</span>` : ""}${fresh ? `<span>새 코드 ${fresh}개</span>` : ""}${ending ? `<span class="warn">곧 끝나는 코드 ${ending}개</span>` : ""}${todo < codes.length ? `<span>아직 안 연 코드 ${todo}개</span>` : ""}</div>`;
+    $("liveBox").hidden = !live.length;
+    $("liveCodes").innerHTML = live.map(c => row(c, opened)).join("");
+    $("restLabel").hidden = !live.length || !rest.length;
     const box = $("codes");
     if (!codes.length) { box.innerHTML = '<div class="empty">지금 쓸 수 있는 코드가 없어요.</div>'; return; }
-    const shown = expanded ? codes : codes.slice(0, FOLDED);
-    box.innerHTML = shown.map(c => {
-      const isNew = c.discovered && dayDiff(today, c.discovered) <= 3;
-      const soon = c.expiry && dayDiff(c.expiry, today) <= 2;
-      const until = c.expiry ? (c.expiry === today ? "오늘까지" : md(c.expiry) + "까지") : null;
-      const pills = (c.live ? '<span class="pill live">방송</span>' : isNew ? '<span class="pill new">NEW</span>' : "")
-        + (c.server === "전 서버" ? "" : `<span class="pill server only">${esc(c.server)}</span>`);
-      const detail = [until ? `<span class="${soon ? "soon" : ""}">${until}</span>` : "", c.reward ? esc(c.reward) : ""].filter(Boolean).join(" · ");
-      const was = opened.has(c.code);
-      return `<div class="code-row${was ? " opened" : ""}">
-        <div class="code-main">
-          <div class="code-line"><button class="code" data-copy="${esc(c.code)}" title="복사">${esc(c.code)}</button>${pills}</div>
-          ${detail ? `<div class="detail">${detail}</div>` : ""}
-        </div>
-        <a class="enter" href="${GIFT(c.code)}" target="_blank" rel="noopener" data-open="${esc(c.code)}">${was ? "열어 봄" : "입력 ›"}</a>
-      </div>`;
-    }).join("") + (codes.length > shown.length ? `<button class="more" id="more">코드 ${codes.length - shown.length}개 더 보기</button>` : "");
+    box.hidden = !rest.length;
+    const shown = expanded ? rest : rest.slice(0, FOLDED);
+    box.innerHTML = shown.map(c => row(c, opened)).join("")
+      + (rest.length > shown.length ? `<button class="more" id="more">코드 ${rest.length - shown.length}개 더 보기</button>` : "");
     const more = $("more");
     if (more) more.onclick = () => { expanded = true; renderCodes(); };
   }
@@ -333,9 +384,10 @@
     const live = list.filter(e => !e.end || e.end > now);
     $("events").innerHTML = live.length ? live.map(e => {
       const left = e.end ? Math.floor((e.end - now) / 86400) : null;
-      const when = e.end ? `${md(new Date(e.end * 1000 + 8 * 3600e3).toISOString().slice(0, 10))}까지 · ${left <= 0 ? "오늘 끝나요" : left + "일 남음"}` : "상시";
+      const when = e.end ? `${md(new Date(e.end * 1000 + 8 * 3600e3).toISOString().slice(0, 10))}까지` : "상시";
+      const pill = left === null ? "" : `<span class="left${left <= 3 ? " soon" : ""}">${left <= 0 ? "오늘 끝나요" : left + "일 남음"}</span>`;
       return `<a class="event" href="${esc(e.url)}" target="_blank" rel="noopener">
-        ${e.banner ? `<img src="${esc(e.banner)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
+        ${e.banner ? `<img src="${esc(e.banner)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}${pill}
         <div><strong>${esc(e.name)}</strong><span>${when}</span></div></a>`;
     }).join("") : '<div class="group empty">지금 진행 중인 이벤트가 없어요.</div>';
   }
