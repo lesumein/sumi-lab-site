@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 원신 리딤 코드·이벤트 목록(checkin/data/codes.json, events.json)을 만든다. GitHub Actions가 1시간마다
-(금요일 밤 특별 방송 시간대에는 15분마다) 돌린다. 웹앱(apps.sumi.kr/genshin/)이 이 파일을 읽는다.
+(금요일 밤 특별 방송 시간대에는 15분마다) 돌린다. 웹앱(apps.sumi.kr/genshin-codes/)이 이 파일을 읽는다.
 
 출처
 - 원신 Fandom 위키 'Promotional Code' 문서: 코드, 쓸 수 있는 서버, 보상, 올라온 날, 만료일
@@ -23,13 +23,13 @@ from pathlib import Path
 
 WIKI = "https://genshin-impact.fandom.com/api.php"
 BBS = "https://bbs-api-os.hoyolab.com"
-UA = "SumiLab-Checkin-Codes/1.0 (+https://apps.sumi.kr/genshin/)"
+UA = "SumiLab-Checkin-Codes/1.0 (+https://apps.sumi.kr/genshin-codes/)"
 BBS_HEADERS = {"x-rpc-client_type": "4", "x-rpc-app_version": "2.50.0", "x-rpc-language": "ko-kr"}
 ROOT = Path(__file__).resolve().parent.parent
 CODES = ROOT / "checkin/data/codes.json"
 EVENTS = ROOT / "checkin/data/events.json"
 NAMES = ROOT / "checkin/data/item_names.json"
-WEB = "https://apps.sumi.kr/genshin/"
+WEB = "https://apps.sumi.kr/genshin-codes/"
 SERVER_NAMES = {"SEA": "아시아", "NA": "미국", "EU": "유럽", "SAR": "TW·HK·MO"}
 # 앱(Redeem.kt)과 같은 기본 이름. 나머지는 위키 아이템 문서의 한국어 표기를 배워 item_names.json에 둔다.
 BASE_NAMES = {
