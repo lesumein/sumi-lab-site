@@ -22,7 +22,9 @@
   .stage .who svg.mark { width: 18px; height: 18px; flex: none; }
   .stage .who { display: flex; align-items: center; gap: 10px; color: #A8AFC6; font-size: 13px; }
   .stage .who img { width: 40px; height: 40px; border-radius: 12px; }
-  .stage h1 { margin: 18px 0 6px; font-size: 30px; line-height: 1.25; letter-spacing: -.01em; text-wrap: balance; }
+  /* 제목만 나눔명조 ExtraBold(제목 글자만 담은 7KB 파일, SIL OFL). 홍보 이미지와 같은 글씨체. */
+  @font-face { font-family: "Sumi Title Serif"; src: url("/checkin/fonts/title-serif.woff2") format("woff2"); font-display: swap; }
+  .stage h1 { margin: 18px 0 8px; font-family: "Sumi Title Serif", serif; font-weight: 400; font-size: 33px; line-height: 1.3; letter-spacing: -.01em; text-wrap: balance; }
   .stage h1 em { font-style: normal; color: var(--gold); }
   .stage p { margin: 0; color: #A8AFC6; font-size: 15px; line-height: 1.6; }
   .stage { padding-bottom: 0; }
