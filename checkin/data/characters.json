@@ -1,4 +1,8 @@
 {
+ "Aino": {
+  "element": "Hydro",
+  "ko": "아이노"
+ },
  "Albedo": {
   "element": "Geo",
   "ko": "알베도"
@@ -6,6 +10,10 @@
  "Alhaitham": {
   "element": "Dendro",
   "ko": "알하이탐"
+ },
+ "Alyosha": {
+  "element": "Electro",
+  "ko": "알료샤"
  },
  "Arataki Itto": {
   "element": "Geo",
@@ -19,13 +27,41 @@
   "element": "Dendro",
   "ko": "백출"
  },
+ "Barbara": {
+  "element": "Hydro",
+  "ko": "바바라"
+ },
+ "Beidou": {
+  "element": "Electro",
+  "ko": "북두"
+ },
+ "Bennett": {
+  "element": "Pyro",
+  "ko": "베넷"
+ },
+ "Candace": {
+  "element": "Hydro",
+  "ko": "캔디스"
+ },
+ "Charlotte": {
+  "element": "Cryo",
+  "ko": "샤를로트"
+ },
  "Chasca": {
   "element": "Anemo",
   "ko": "차스카"
  },
+ "Chevreuse": {
+  "element": "Pyro",
+  "ko": "슈브르즈"
+ },
  "Chiori": {
   "element": "Geo",
   "ko": "치오리"
+ },
+ "Chongyun": {
+  "element": "Cryo",
+  "ko": "중운"
  },
  "Citlali": {
   "element": "Cryo",
@@ -35,6 +71,10 @@
   "element": "Electro",
   "ko": "클로린드"
  },
+ "Collei": {
+  "element": "Dendro",
+  "ko": "콜레이"
+ },
  "Columbina": {
   "element": "Hydro",
   "ko": "콜롬비나"
@@ -43,6 +83,10 @@
   "element": "Electro",
   "ko": "사이노"
  },
+ "Dahlia": {
+  "element": "Hydro",
+  "ko": "달리아"
+ },
  "Dehya": {
   "element": "Pyro",
   "ko": "데히야"
@@ -50,6 +94,14 @@
  "Diluc": {
   "element": "Pyro",
   "ko": "다이루크"
+ },
+ "Diona": {
+  "element": "Cryo",
+  "ko": "디오나"
+ },
+ "Dori": {
+  "element": "Electro",
+  "ko": "도리"
  },
  "Durin": {
   "element": "Pyro",
@@ -67,29 +119,69 @@
   "element": "Cryo",
   "ko": "유라"
  },
+ "Faruzan": {
+  "element": "Anemo",
+  "ko": "파루잔"
+ },
+ "Fischl": {
+  "element": "Electro",
+  "ko": "피슬"
+ },
  "Flins": {
   "element": "Electro",
   "ko": "플린스"
+ },
+ "Freminet": {
+  "element": "Cryo",
+  "ko": "프레미네"
  },
  "Furina": {
   "element": "Hydro",
   "ko": "푸리나"
  },
+ "Gaming": {
+  "element": "Pyro",
+  "ko": "가명"
+ },
  "Ganyu": {
   "element": "Cryo",
   "ko": "감우"
+ },
+ "Gorou": {
+  "element": "Geo",
+  "ko": "고로"
  },
  "Hu Tao": {
   "element": "Pyro",
   "ko": "호두"
  },
+ "Iansan": {
+  "element": "Electro",
+  "ko": "얀사"
+ },
+ "Ifa": {
+  "element": "Anemo",
+  "ko": "이파"
+ },
+ "Illuga": {
+  "element": "Geo",
+  "ko": "일루가"
+ },
  "Ineffa": {
   "element": "Electro",
   "ko": "이네파"
  },
+ "Jahoda": {
+  "element": "Anemo",
+  "ko": "야호다"
+ },
  "Jean": {
   "element": "Anemo",
   "ko": "진"
+ },
+ "Kachina": {
+  "element": "Geo",
+  "ko": "카치나"
  },
  "Kaedehara Kazuha": {
   "element": "Anemo",
@@ -103,6 +195,10 @@
   "element": "Hydro",
   "ko": "카미사토 아야토"
  },
+ "Kaveh": {
+  "element": "Dendro",
+  "ko": "카베"
+ },
  "Keqing": {
   "element": "Electro",
   "ko": "각청"
@@ -111,13 +207,33 @@
   "element": "Dendro",
   "ko": "키니치"
  },
+ "Kirara": {
+  "element": "Dendro",
+  "ko": "키라라"
+ },
  "Klee": {
   "element": "Pyro",
   "ko": "클레"
  },
+ "Kujou Sara": {
+  "element": "Electro",
+  "ko": "쿠죠 사라"
+ },
+ "Kuki Shinobu": {
+  "element": "Electro",
+  "ko": "쿠키 시노부"
+ },
+ "Lan Yan": {
+  "element": "Anemo",
+  "ko": "남연"
+ },
  "Lauma": {
   "element": "Dendro",
   "ko": "라우마"
+ },
+ "Layla": {
+  "element": "Cryo",
+  "ko": "레일라"
  },
  "Linnea": {
   "element": "Geo",
@@ -127,6 +243,10 @@
   "element": "Cryo",
   "ko": "로엔"
  },
+ "Lynette": {
+  "element": "Anemo",
+  "ko": "리넷"
+ },
  "Lyney": {
   "element": "Pyro",
   "ko": "리니"
@@ -134,6 +254,10 @@
  "Mavuika": {
   "element": "Pyro",
   "ko": "마비카"
+ },
+ "Mika": {
+  "element": "Cryo",
+  "ko": "미카"
  },
  "Mona": {
   "element": "Hydro",
@@ -167,9 +291,25 @@
   "element": "Hydro",
   "ko": "닐루"
  },
+ "Ningguang": {
+  "element": "Geo",
+  "ko": "응광"
+ },
+ "Noelle": {
+  "element": "Geo",
+  "ko": "노엘"
+ },
  "Odette": {
   "element": "Cryo",
   "ko": "오데트"
+ },
+ "Ororon": {
+  "element": "Electro",
+  "ko": "올로룬"
+ },
+ "Prune": {
+  "element": "Anemo",
+  "ko": "프루네"
  },
  "Qiqi": {
   "element": "Cryo",
@@ -179,6 +319,14 @@
   "element": "Electro",
   "ko": "라이덴 쇼군"
  },
+ "Razor": {
+  "element": "Electro",
+  "ko": "레이저"
+ },
+ "Rosaria": {
+  "element": "Cryo",
+  "ko": "로자리아"
+ },
  "Sandrone": {
   "element": "Cryo",
   "ko": "산드로네"
@@ -187,9 +335,21 @@
   "element": "Hydro",
   "ko": "산고노미야 코코미"
  },
+ "Sayu": {
+  "element": "Anemo",
+  "ko": "사유"
+ },
+ "Sethos": {
+  "element": "Electro",
+  "ko": "세토스"
+ },
  "Shenhe": {
   "element": "Cryo",
   "ko": "신학"
+ },
+ "Shikanoin Heizou": {
+  "element": "Anemo",
+  "ko": "시카노인 헤이조"
  },
  "Sigewinne": {
   "element": "Hydro",
@@ -199,9 +359,17 @@
   "element": "Cryo",
   "ko": "스커크"
  },
+ "Sucrose": {
+  "element": "Anemo",
+  "ko": "설탕"
+ },
  "Tartaglia": {
   "element": "Hydro",
   "ko": "타르탈리아"
+ },
+ "Thoma": {
+  "element": "Pyro",
+  "ko": "토마"
  },
  "Tighnari": {
   "element": "Dendro",
@@ -235,6 +403,10 @@
   "element": "Cryo",
   "ko": "라이오슬리"
  },
+ "Xiangling": {
+  "element": "Pyro",
+  "ko": "향릉"
+ },
  "Xianyun": {
   "element": "Anemo",
   "ko": "한운"
@@ -247,9 +419,25 @@
   "element": "Geo",
   "ko": "실로닌"
  },
+ "Xingqiu": {
+  "element": "Hydro",
+  "ko": "행추"
+ },
+ "Xinyan": {
+  "element": "Pyro",
+  "ko": "신염"
+ },
  "Yae Miko": {
   "element": "Electro",
   "ko": "야에 미코"
+ },
+ "Yanfei": {
+  "element": "Pyro",
+  "ko": "연비"
+ },
+ "Yaoyao": {
+  "element": "Dendro",
+  "ko": "요요"
  },
  "Yelan": {
   "element": "Hydro",
@@ -262,6 +450,10 @@
  "Yumemizuki Mizuki": {
   "element": "Anemo",
   "ko": "유메미즈키 미즈키"
+ },
+ "Yun Jin": {
+  "element": "Geo",
+  "ko": "운근"
  },
  "Zhongli": {
   "element": "Geo",

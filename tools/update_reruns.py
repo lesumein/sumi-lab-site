@@ -2,7 +2,7 @@
 """
 원신 출첵 앱의 '복각표' 데이터(checkin/data/reruns.json)를 만든다. GitHub Actions가 하루 한 번 돌린다.
 
-출처: Genshin Impact Wiki(Fandom)의 'Wish/History' 문서. 버전별 기원 목록에서 5성 캐릭터가
+출처: Genshin Impact Wiki(Fandom)의 'Wish/History' 문서. 버전별 기원 목록에서 5성·4성 캐릭터가
 언제 픽업됐는지(사실 정보)만 뽑는다. 그림·표 디자인은 가져오지 않는다.
 캐릭터의 한국어 이름과 원소는 각 캐릭터 문서에서 한 번만 읽고 checkin/data/characters.json에 기억한다.
 
@@ -32,7 +32,7 @@ STANDARD = {"Diluc", "Jean", "Keqing", "Mona", "Qiqi", "Tighnari", "Dehya", "Yum
 # 픽업에 나오지 않는 이름(여행자 등)이나 무기 이름이 섞여도 캐릭터 문서가 아니면 걸러진다.
 ELEMENTS = {"Anemo", "Geo", "Electro", "Dendro", "Hydro", "Pyro", "Cryo"}
 # 캐릭터 문서에 한국어 이름 칸이 없는 경우.
-KO_OVERRIDES = {"Xiao": "소", "Durin": "두린"}
+KO_OVERRIDES = {"Xiao": "소", "Durin": "두린", "Fischl": "피슬"}
 # 5.8 다음 버전들은 위키에서 "Luna I" 같은 이름으로 불린다. 순서를 위해 6.0부터 번호를 붙인다.
 ROMAN = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10}
 
@@ -143,13 +143,18 @@ def load_history():
     return versions, rows
 
 
-def five_stars():
-    """픽업에 나온 적 있는 5성 캐릭터 이름: 'Wish/Featured' 문서 첫 표의 머리글 + 상시 5성."""
+def featured_stars():
+    """픽업에 나온 적 있는 캐릭터 이름: 'Wish/Featured' 문서의 첫 표(5성) 머리글 + 상시 5성, 둘째 표(4성) 머리글."""
     text = api({"action": "parse", "page": "Wish/Featured", "prop": "text"})["parse"]["text"]
-    table = text[text.index("<table"):text.index("</table>")]
-    head = table[:table.index("</tr>")]
-    names = {html.unescape(t) for t in re.findall(r'<a [^>]*title="([^"]+)"', head)}
-    return names | STANDARD
+    tables = []
+    at = 0
+    for _ in range(2):
+        start = text.index("<table", at)
+        table = text[start:text.index("</table>", start)]
+        head = table[:table.index("</tr>")]
+        tables.append({html.unescape(t) for t in re.findall(r'<a [^>]*title="([^"]+)"', head)})
+        at = start + len(table)
+    return tables[0] | STANDARD, tables[1] - tables[0] - STANDARD
 
 
 def fill_info(names, cache):
@@ -215,18 +220,31 @@ def main():
     versions, rows = load_history()
     if len(versions) < 10:
         sys.exit("버전 목록을 읽지 못했어요(문서 구조가 바뀌었을 수 있음).")
-    stars = five_stars()
+    stars, four_stars = featured_stars()
+    if len(four_stars) < 20:
+        sys.exit("4성 목록을 읽지 못했어요(문서 구조가 바뀌었을 수 있음).")
     cache = json.loads(CHARS.read_text()) if CHARS.exists() else {}
-    fill_info(stars, cache)
+    fill_info(stars | four_stars, cache)
     last = {}  # 이름 -> (버전, 시작일, 같은 기원의 5성 수)
     first = {}  # 이름 -> 처음 픽업된 버전
     runs = {}  # 이름 -> 혼자 픽업된(집록이 아닌) 기원의 시작일들
     banners = {}  # (시작일, 5성들) -> 픽업 정보. 같은 날 같은 캐릭터 기원(집록 등)이 여러 줄이면 하나로.
     for version, date, titles, end in rows:
         names = [t for t in dict.fromkeys(titles) if t in stars and t in cache]
+        # 같은 기원의 픽업 4성(앱의 4성 복각표·알림용, 고를 때만 보인다). 5성 집계와는 따로 센다.
+        fours = [t for t in dict.fromkeys(titles) if t in four_stars and t in cache]
         if names and end:
             key = (date, tuple(sorted(names)))
             banners[key] = {"version": version, "start": date, "end": end, "chars": sorted(names), "chronicled": len(names) > 1}
+            if fours:
+                banners[key]["four"] = sorted(fours)
+        for n in fours:
+            prev = last.get(n)
+            if prev is None or (version_key(version), date) >= (version_key(prev[0]), prev[1]):
+                last[n] = (version, date, 0)
+            if n not in first or version_key(version) < version_key(first[n]):
+                first[n] = version
+            runs.setdefault(n, set()).add(date)
         for n in names:
             prev = last.get(n)
             if prev is None or (version_key(version), date) >= (version_key(prev[0]), prev[1]):
@@ -258,7 +276,16 @@ def main():
                     "first": first[n],
                     "runs": len(runs.get(n, ())),
                 }
-                for n, (v, d, count) in last.items()
+                for n, (v, d, count) in last.items() if n not in four_stars
+            ),
+            key=lambda c: (version_key(c["last"]), c["name"]),
+        ),
+        # 픽업 4성. 예전 앱·웹은 이 칸을 모르니 5성 목록(characters)과 따로 둔다. runs는 픽업에 나온 기원 수.
+        "fours": sorted(
+            (
+                {"name": n, "ko": cache[n]["ko"], "element": cache[n]["element"], "last": v, "lastStart": d,
+                 "first": first[n], "runs": len(runs.get(n, ()))}
+                for n, (v, d, _) in last.items() if n in four_stars
             ),
             key=lambda c: (version_key(c["last"]), c["name"]),
         ),
