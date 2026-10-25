@@ -7,6 +7,8 @@
 config.json의 lobbyOfficialArt가 false면 앱이 그림 자체를 쓰지 않는다.
 
 얼굴 찾기: deepghs/anime_face_detection(MIT)의 face_detect_v1.4_s. 그림 속 얼굴 위치만 찾는 인식 모델이다.
+얼굴이 가면 등으로 가려 못 찾으면(사이노 등) 같은 곳의 anime_head_detection(MIT) head_detect_v2.0_s로 머리를 찾아
+얼굴 자리로 환산한다. 앱은 어느 쪽이든 같은 크기로 자른다.
 이미 찾은 캐릭터는 그림 주소가 바뀌지 않는 한 다시 찾지 않는다(새 캐릭터·바뀐 그림만 돈다).
 
 필요한 것: pip install onnxruntime numpy pillow
@@ -32,10 +34,13 @@ LIST = "https://sg-wiki-api.hoyolab.com/hoyowiki/genshin/wapi/get_entry_page_lis
 PAGE = "https://sg-wiki-api-static.hoyolab.com/hoyowiki/genshin/wapi/entry_page?entry_page_id="
 WIKI_HEADERS = {"User-Agent": UA, "x-rpc-language": "ko-kr", "Referer": "https://wiki.hoyolab.com/"}
 # 받은 모델이 시험한 그것과 같은지 확인한다(버전 고정 + 해시 확인).
-MODEL_URL = ("https://huggingface.co/deepghs/anime_face_detection/resolve/"
-             "784dc4c0bb692351ddcdbe6131a050b17d3025d5/face_detect_v1.4_s/model.onnx")
-MODEL_SHA256 = "403b5bc93b6ff789b7d183418df4a1364049bac00c24acd927604a7ff6891483"
-MODEL = Path(os.environ.get("FACE_MODEL", ROOT / ".cache/face_detect_v1.4_s.onnx"))
+HF = "https://huggingface.co/deepghs/"
+FACE_MODEL = (HF + "anime_face_detection/resolve/784dc4c0bb692351ddcdbe6131a050b17d3025d5/face_detect_v1.4_s/model.onnx",
+              "403b5bc93b6ff789b7d183418df4a1364049bac00c24acd927604a7ff6891483",
+              Path(os.environ.get("FACE_MODEL", ROOT / ".cache/face_detect_v1.4_s.onnx")))
+HEAD_MODEL = (HF + "anime_head_detection/resolve/06604feee81983792a57c21081e539c0ae229833/head_detect_v2.0_s/model.onnx",
+              "6679f9b71192298bbf174d82e9e5581c3237b0c3dc67deace7cdbf686b070a00",
+              Path(os.environ.get("HEAD_MODEL", ROOT / ".cache/head_detect_v2.0_s.onnx")))
 # 이보다 확신이 낮거나, 얼굴이 그림 아래쪽에서 잡히면 좌표를 적지 않는다(앱은 작은 얼굴 동그라미를 쓴다).
 # 모델 권장 기준은 0.31이고, 시험한 122명은 모두 0.77 이상이었다.
 MIN_SCORE = 0.5
@@ -74,18 +79,27 @@ def gallery_pic(entry_id):
     return None
 
 
-def load_model():
-    if not MODEL.exists():
-        MODEL.parent.mkdir(parents=True, exist_ok=True)
-        MODEL.write_bytes(fetch(MODEL_URL, headers={"User-Agent": UA}, timeout=300))
-    if hashlib.sha256(MODEL.read_bytes()).hexdigest() != MODEL_SHA256:
-        MODEL.unlink()
-        sys.exit("얼굴 인식 모델 파일이 예상과 달라요.")
-    return ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
+def load_model(spec):
+    url, sha, path = spec
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(fetch(url, headers={"User-Agent": UA}, timeout=300))
+    if hashlib.sha256(path.read_bytes()).hexdigest() != sha:
+        path.unlink()
+        sys.exit(f"인식 모델 파일이 예상과 달라요: {path.name}")
+    return ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+
+
+def head_to_face(head):
+    """머리 상자를 얼굴 상자로 환산한다(얼굴과 머리가 다 잡히는 캐릭터들에서 잰 비율: 폭 0.62배, 위에서 70% 높이가 얼굴 중심)."""
+    left, top, right, bottom = head
+    cx, cy = (left + right) / 2, top + (bottom - top) * 0.7
+    half_w, half_h = (right - left) * 0.31, (bottom - top) * 0.28
+    return [round(min(1.0, max(0.0, v)), 4) for v in (cx - half_w, cy - half_h, cx + half_w, cy + half_h)]
 
 
 def find_face(session, image):
-    """가장 확실한 얼굴 하나: (점수, [왼, 위, 오른, 아래]) — 그림 크기에 대한 비율."""
+    """가장 확실한 얼굴(머리 모델이면 머리) 하나: (점수, [왼, 위, 오른, 아래]) — 그림 크기에 대한 비율."""
     w, h = image.size
     scale = 640 / max(w, h)
     nw, nh = max(32, int(w * scale) // 32 * 32), max(32, int(h * scale) // 32 * 32)
@@ -99,6 +113,10 @@ def find_face(session, image):
     return float(best[4:].max()), [round(min(1.0, max(0.0, v)), 4) for v in box]
 
 
+def confident(score, face):
+    return score >= MIN_SCORE and (face[1] + face[3]) / 2 <= MAX_FACE_Y
+
+
 def main():
     old = json.loads(OUT.read_text()) if OUT.exists() else {}
     try:
@@ -108,7 +126,7 @@ def main():
     if len(chars) < 50:
         sys.exit("캐릭터 목록이 너무 짧아요(지난 파일을 그대로 둠).")
 
-    session = None
+    faces = heads = None
     result, skipped = {}, []
     for name, entry_id in sorted(chars.items()):
         try:
@@ -124,13 +142,19 @@ def main():
         if old.get(name, {}).get("pic") == pic:
             result[name] = old[name]
             continue
-        session = session or load_model()
+        faces = faces or load_model(FACE_MODEL)
         try:
-            score, face = find_face(session, Image.open(io.BytesIO(fetch(pic, timeout=120))))
+            image = Image.open(io.BytesIO(fetch(pic, timeout=120)))
+            score, face = find_face(faces, image)
+            if not confident(score, face):
+                heads = heads or load_model(HEAD_MODEL)
+                head_score, head = find_face(heads, image)
+                print(f"{name}: 얼굴이 가려져 있어 머리로 찾음({score:.2f} → {head_score:.2f})")
+                score, face = head_score, head_to_face(head)
         except Exception as e:
             print(f"{name}: 그림 처리 실패 {e}", file=sys.stderr)
             continue
-        if score < MIN_SCORE or (face[1] + face[3]) / 2 > MAX_FACE_Y:
+        if not confident(score, face):
             print(f"{name}: 얼굴을 확실히 못 찾음({score:.2f}) — 작은 얼굴 그림을 씀")
             continue
         result[name] = {"pic": pic, "face": face}

@@ -31,7 +31,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache
-          key: face-model-v1.4s-784dc4c
+          key: face-models-v1.4s-784dc4c-head2.0s-06604fe
 
       - name: Build portraits.json
         continue-on-error: true
