@@ -113,6 +113,10 @@
   .tile .face { position: relative; width: 52px; height: 52px; margin: 0 auto; }
   .tile .orb { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; }
   .tile .orb svg { width: 32px; height: 32px; }
+  /* 공식 얼굴 그림(있으면 원소 아이콘 위에 덮는다. 못 받으면 지워져 아이콘이 보인다) */
+  .tile .orb, .circle { position: relative; overflow: hidden; }
+  .orb img, .circle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .credit { margin: 10px 4px 0; font-size: 11px; color: var(--muted); text-align: center; }
   .badge { position: absolute; right: -8px; bottom: -4px; min-width: 24px; padding: 2px 6px; border-radius: 12px; border: 2px solid var(--hero);
            color: #fff; font-weight: 700; font-size: 13px; line-height: 1.2; }
   .badge.big { font-size: 15px; } .badge.now { font-size: 10px; padding: 3px 6px; }
@@ -343,9 +347,12 @@
     Geo: ["--geo", '<path fill-rule="evenodd" d="M6.4,2.6h11.2l4.6,6.2 -10.2,13 -10.2,-13Z M3.9,9.6h4.2L12,19.4ZM15.9,9.6h4.2L12,19.4Z M9.3,9.6h5.4L12,17.2Z M7.1,3.8L4.6,7.9h3.2ZM16.9,3.8l2.5,4.1h-3.2Z"/>'],
     Dendro: ["--dendro", '<path fill-rule="evenodd" d="M3.4,20.6C2.9,10.2 9.8,2.9 21.1,2.4c0.5,11.4 -6.8,18.6 -17.7,18.2Z M4.5,20.3L3.7,19.5 16.4,6.8 17.2,7.6Z M9.2,14.6V10.8h1.1v2.7ZM12,11.8V8h1.1v2.7ZM9.4,15.5h3.8v1.1H10.5ZM12.2,12.7h3.8v1.1h-2.7Z"/>'],
   };
+  // 공식 얼굴 그림(한국어 이름 → 호요랩 위키 그림 주소). 사이트 설정으로 끄면 원소 아이콘만.
+  let faces = {};
+  const face = c => faces[c.ko] ? `<img src="${esc(faces[c.ko])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
   function token(c) {
     const [color, svg] = ELEMENT[c.element] || ["--muted", ""];
-    return `<div class="token"><div class="circle" style="background:var(${color})"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${svg}</svg></div>
+    return `<div class="token"><div class="circle" style="background:var(${color})"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${svg}</svg>${face(c)}</div>
       <b style="color:color-mix(in srgb, var(${color}) 55%, #fff)">${esc(c.ko)}</b></div>`;
   }
   function renderPickup(data) {
@@ -380,7 +387,7 @@
       const name = c.ko.trim().split(" ").pop();
       return `<div class="tile${fade}" title="${esc(c.ko)} · 마지막 ${esc(label(c.last))}">
         <div class="face"><div class="orb" style="background:linear-gradient(135deg, color-mix(in srgb, var(${color}) 65%, #fff), var(${color}))">
-          <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${svg}</svg></div>
+          <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${svg}</svg>${face(c)}</div>
           <span class="badge${isLive ? " now" : n >= 9 ? " big" : ""}" style="background:${isLive ? "#4E8A55" : tone(n)}">${isLive ? "NOW" : n}</span></div>
         <b class="${n >= 9 ? "strong" : ""}" style="color:color-mix(in srgb, var(${color}) 55%, #fff)">${esc(name)}</b>${tag}</div>`;
     };
@@ -390,7 +397,7 @@
         <span class="pill rnew">신규</span><span class="pill chron">집록</span><span class="pill none">복각 없음</span></div>` : ""}
       <div class="grid">${list.map(tile).join("")}</div></div>`;
     $("boards").innerHTML = board("한정 캐릭터", ranked(false), true) + board("상시 캐릭터", ranked(true), false)
-;
+      + (Object.keys(faces).length ? '<p class="credit">캐릭터 그림 © HoYoverse · 호요랩 위키 · 비공식 팬 도구</p>' : "");
   }
 
   // ---------- 이벤트 ----------
@@ -532,7 +539,10 @@
 
   load("codes.json").then(d => { all = d.codes || []; renderCodes(); })
     .catch(() => { $("codes").innerHTML = '<div class="empty">코드 목록을 불러오지 못했어요.</div>'; });
-  load("reruns.json").then(renderPickup)
+  // 얼굴 그림은 사이트 설정(config.json의 lobbyOfficialArt)이 꺼져 있지 않을 때만. 못 받아도 복각표는 그린다.
+  Promise.all([load("config.json").catch(() => ({})), load("faces.json").catch(() => ({}))])
+    .then(([config, f]) => { if (config.lobbyOfficialArt !== false) faces = f || {}; })
+    .then(() => load("reruns.json")).then(renderPickup)
     .catch(() => { $("pickup").innerHTML = '<div class="period">픽업 자료를 불러오지 못했어요.</div>'; });
   load("events.json").then(renderEvents)
     .catch(() => { $("events").innerHTML = '<div class="group empty">이벤트를 불러오지 못했어요.</div>'; });

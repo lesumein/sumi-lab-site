@@ -23,6 +23,10 @@ UA = "SumiLab-Checkin-Reruns/1.0 (+https://apps.sumi.kr/checkin/)"
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "checkin/data/reruns.json"
 CHARS = ROOT / "checkin/data/characters.json"
+# 복각표 얼굴 그림 주소(한국어 이름 → 호요랩 위키의 공식 그림 주소). 그림은 받지 않고 주소만 둔다.
+# 앱·웹이 공식 서버에서 바로 받아 보여 주며, config.json의 lobbyOfficialArt가 false면 둘 다 쓰지 않는다.
+FACES = ROOT / "checkin/data/faces.json"
+HOYOWIKI_LIST = "https://sg-wiki-api.hoyolab.com/hoyowiki/genshin/wapi/get_entry_page_list"
 # 상시 기원에서도 나오는 5성. 위키에서 자동으로 가르기 어려워 여기서 관리한다(새로 상시가 되면 추가).
 STANDARD = {"Diluc", "Jean", "Keqing", "Mona", "Qiqi", "Tighnari", "Dehya", "Yumemizuki Mizuki"}
 # 픽업에 나오지 않는 이름(여행자 등)이나 무기 이름이 섞여도 캐릭터 문서가 아니면 걸러진다.
@@ -172,6 +176,41 @@ def fill_info(names, cache):
         time.sleep(1)  # 위키에 부담을 주지 않게
 
 
+def hoyowiki_faces(names):
+    """호요랩 위키 캐릭터 목록에서 이름이 같은 캐릭터의 얼굴 그림 주소. 실패하면 None(지난 파일을 그대로 둔다)."""
+    out = {}
+    try:
+        for page in range(1, 8):
+            body = json.dumps({"filters": [], "menu_id": "2", "page_num": page, "page_size": 50, "use_es": True}).encode()
+            req = urllib.request.Request(HOYOWIKI_LIST, data=body, headers={
+                "User-Agent": UA, "Content-Type": "application/json", "x-rpc-language": "ko-kr", "Referer": "https://wiki.hoyolab.com/"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                items = json.load(r).get("data", {}).get("list", [])
+            for it in items:
+                if it.get("name") in names and it.get("icon_url", "").startswith("https://"):
+                    out[it["name"]] = it["icon_url"]
+            if len(items) < 50:
+                break
+    except Exception as e:
+        print("호요랩 위키 얼굴 그림 실패:", e, file=sys.stderr)
+        return None
+    return out
+
+
+def write_faces(cache):
+    names = {c["ko"] for c in cache.values()}
+    faces = hoyowiki_faces(names)
+    if faces is None:
+        return
+    missing = sorted(names - set(faces))
+    if missing:
+        print("얼굴 그림 없음(원소 아이콘으로 보임):", ", ".join(missing))
+    text = json.dumps(dict(sorted(faces.items())), ensure_ascii=False, separators=(",", ":")) + "\n"
+    if not FACES.exists() or FACES.read_text() != text:
+        FACES.write_text(text)
+        print(f"얼굴 그림 {len(faces)}명")
+
+
 def main():
     versions, rows = load_history()
     if len(versions) < 10:
@@ -197,6 +236,7 @@ def main():
             if len(names) == 1:
                 runs.setdefault(n, set()).add(date)
     CHARS.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+    write_faces(cache)
 
     data = {
         "source": "Genshin Impact Wiki (genshin-impact.fandom.com), CC BY-SA",
