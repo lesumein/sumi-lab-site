@@ -1,6 +1,6 @@
 name: Update rerun data
 
-# 원신 출첵 앱의 '복각표' 데이터(checkin/data/reruns.json)를 하루 한 번 위키에서 다시 만든다.
+# 원신 출첵 앱의 '복각표' 데이터(checkin/data/reruns.json)와 알림 그림용 얼굴 위치(portraits.json)를 하루 한 번 위키에서 다시 만든다.
 # 바뀐 게 있을 때만 커밋하고, GitHub Pages가 apps.sumi.kr/checkin/data/reruns.json으로 내보낸다.
 on:
   schedule:
@@ -24,6 +24,20 @@ jobs:
 
       - name: Build reruns.json
         run: python3 tools/update_reruns.py
+
+      # 알림의 큰 캐릭터 그림용 얼굴 위치(checkin/data/portraits.json). 새 캐릭터·바뀐 그림만 처리한다.
+      # 실패해도 복각표 갱신은 막지 않는다(앱은 좌표가 없으면 작은 얼굴 그림을 쓴다).
+      - name: Cache face model
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: face-model-v1.4s-784dc4c
+
+      - name: Build portraits.json
+        continue-on-error: true
+        run: |
+          pip install --quiet onnxruntime numpy pillow
+          python3 tools/update_portraits.py
 
       # GitHub은 공개 저장소에 60일 동안 활동이 없으면 예약 작업을 멈춘다. 자료가 오래 안 바뀌어도 멈추지 않게,
       # 마지막 커밋이 30일보다 오래됐으면 확인 날짜만 적은 작은 파일을 고쳐 커밋한다(평소엔 커밋하지 않는다).
