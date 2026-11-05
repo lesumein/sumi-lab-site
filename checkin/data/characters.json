@@ -259,6 +259,10 @@
   "element": "Cryo",
   "ko": "미카"
  },
+ "Mitya": {
+  "element": "Electro",
+  "ko": "미탸"
+ },
  "Mona": {
   "element": "Hydro",
   "ko": "모나"
@@ -374,6 +378,10 @@
  "Tighnari": {
   "element": "Dendro",
   "ko": "타이나리"
+ },
+ "Valeriy": {
+  "element": "Electro",
+  "ko": "발레리"
  },
  "Varesa": {
   "element": "Electro",
